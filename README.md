@@ -1,10 +1,11 @@
 # index
+<img width="720" alt="cover" src="/assets/cover.jpg">
 
 ## GitHub
 
 
 >再構築作業中です。
-
+assets
 ### External Link
 
 [Main Site](http://watanabe3ti.com)  
