@@ -3,7 +3,7 @@
 
 ## GitHub
 
-[1](https://watanabe3tipapa.github.io/)  
+[Weblog](https://watanabe3tipapa.github.io/)  
 
 >そのほかは再構築作業中です。  
 
