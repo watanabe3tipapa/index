@@ -7,7 +7,7 @@
 
 ### External Link
 
-[Main Site](http://watanabe3ti.com/)  
+[Main Site](http://watanabe3ti.com)  
 <br>
 [BLOG](https://watanabe3ti.txt-nifty.com/)  
 <br>
