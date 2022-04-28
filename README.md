@@ -1,7 +1,7 @@
-# index
-<img width="480" alt="cover" src="/assets/cover.jpg">
+## index
+![cover.jpg](/assets/cover.jpg “Hello world!”)
 
-## GitHub
+### GitHub
 
 [Weblog](https://watanabe3tipapa.github.io/)  
 
