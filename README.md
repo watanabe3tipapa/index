@@ -1,5 +1,5 @@
 # index
-<img width="720" alt="cover" src="/assets/cover.jpg">
+<img width="480" alt="cover" src="/assets/cover.jpg">
 
 ## GitHub
 
