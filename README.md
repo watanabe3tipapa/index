@@ -1,11 +1,11 @@
 ## index
-<img width="480" alt="Hello world!" src="/assets/cover.jpg">
 
 ### GitHub
 
 [Weblog](https://watanabe3tipapa.github.io/)  
 
->そのほかは再構築作業中です。  
+
+>そのほかは再構築中です。  
 
 ### External Link
 
