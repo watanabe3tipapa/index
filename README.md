@@ -1,5 +1,5 @@
 ## index
-<img width=“480” alt=“Hello world!” src=“/assets/cover.jpg”>
+<img width=“480” alt=“Hello world!” src=/assets/cover.jpg>
 
 ### GitHub
 
