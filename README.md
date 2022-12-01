@@ -3,7 +3,6 @@
 ### GitHub
 
 [Weblog](https://watanabe3tipapa.github.io/)  
-[Toolsmith](https://watanabe3tipapa.github.io/toolsmith/)  
 
 
 >そのほかは再構築中です。  
@@ -16,7 +15,9 @@
 <br>
 [BLOG(annex)](https://wiki.watanabe3ti.com)  
 <br>
-[Toolsmith](https://toolsmith.watanabe3ti.com)  
+[Toolsmith](https://toolsmith.watanabe3ti.com)
+<br>
+[Re:Start PC site](https://restart-pc.super.site)
 
 
 ---
