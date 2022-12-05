@@ -13,7 +13,7 @@
 <br>
 [BLOG](https://watanabe3ti.txt-nifty.com/)  
 <br>
-[BLOG(annex)](https://wiki.watanabe3ti.com)  
+[BLOG(annex)](https://wiki.watanabe3ti.com)  ：　Now rebuilding
 <br>
 [Toolsmith](https://toolsmith.watanabe3ti.com)
 <br>
