@@ -83,3 +83,15 @@ docs/index.md                     # 廃止（削除）
 - 空コミットの push でビルドを発火 → **`https://watanabe3tipapa.github.io/index/` が HTTP 200 で公開**。
 - 実機確認: title「watanabe3tipapa の公開サイト・サービス一覧」/ カード **71 件** / リンク正常。
 - **残TODO**：Actions の `Update repository index` が `legacy` 環境下で `docs/index.html` を更新→ push に成功することの実動作確認（毎日 cron で回る）。
+
+### LP デザイン刷新（neo-brutalism）（2026-08-05）
+- ユーザー要望: 「LP の CSS を追加、neo Brutalism 調に変更、使用フォントのサイズを大きめに」。
+- `generate_index.py` のテンプレート / `render_card` を改修してから `docs/index.html` を再生成（71件維持）。
+- **neo-brutalism 実装**：
+  - カード: `border: 4px solid #000` ＋ `box-shadow: 8px 8px 0 #000`（ハードシャドウ）、角丸なし。
+  - ホバーで `translate(-4px,-4px)` / `:active` で押し込む動き。
+  - 5色（黄・緑・水色・ピンク・白）でカードを順番に塗分け（`CARD_COLORS`）。
+  - 回転付き `UPDATE-STAMP` タグ、黒地バッジ、黄色大見出しブロック、破線セパレータ。
+- **フォント拡大**：`html { font-size: 18px }` 基準。h1 `2rem`、カード h3 `1.5rem`、desc `1.05rem`。
+- コミット `59e7e4d`「Restyle index LP in neo-brutalism with larger fonts」push 済み。
+- 検証: カード71件 / `box-shadow: 8px 8px 0 #000` 反映 / HTML 構文OK（32,943 bytes）。
