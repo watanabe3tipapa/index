@@ -70,3 +70,9 @@ docs/index.md                     # 廃止（削除）
 ### 残課題
 - **GitHub Actions の実動作確認**：未pushのため未検証。`git push` 後に Actions タブで `Update repository index` の実行（`workflow_dispatch` 手動実行）と Pages 更新を要確認。
 - 掲載初期状態は **71 件すべて表示**。ワークショップ系が多いため、`index-exclude.txt` で絞り込むべきか要判断。
+
+### push 完了（2026-08-05）
+- コミット `66d5880`「Add GitHub Actions auto index generation for GitHub Pages」を `main` に push 成功。
+- ダミー学習用 `run.yml` を削除（毎 push 動作の無駄を排除）。
+- 未コミット残: `PLAN.md`（計画文書のため本リポジトリへは含めず）。
+- **次の確認**：GitHub Actions タブで `Update repository index` が手動トリガ / cron で回り、`docs/index.html` が公開されることを確認。
