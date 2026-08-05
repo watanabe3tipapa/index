@@ -82,7 +82,7 @@ def main():
 
     items.sort(key=lambda r: r["updated"], reverse=True)
 
-    cards = "\n".join(render_card(r) for r in items)
+    cards = "\n".join(render_card(r, i) for i, r in enumerate(items))
     html = HTML_TEMPLATE.replace("{{CARDS}}", cards).replace(
         "{{COUNT}}", str(len(items))
     ).replace("{{GENERATED_AT}}", __import__("datetime").datetime.now(
@@ -94,16 +94,21 @@ def main():
     print(f"Generated {len(items)} repos -> {out}")
 
 
-def render_card(r):
+CARD_COLORS = ["#fff", "#ffe14d", "#9ef01a", "#7ec8e3", "#ffadad"]
+
+
+def render_card(r, index):
     desc = r["description"] or "（説明なし）"
+    bg = CARD_COLORS[index % len(CARD_COLORS)]
     return f'''
-      <a class="card" href="{r["pages_url"]}" rel="noopener">
+      <a class="card" style="background:{bg}" href="{r["pages_url"]}" rel="noopener">
+        <span class="tag">UPDATE-STAMP</span>
         <h3>{r["name"]}</h3>
         <p class="desc">{desc}</p>
         <p class="meta">
-          <span class="updated">更新: {r["updated"]}</span>
           <span class="repo">github.com/{OWNER}/{r["name"]}</span>
         </p>
+        <p class="date">更新 {r["updated"]}</p>
       </a>'''
 
 
@@ -115,29 +120,45 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <title>watanabe3tipapa の公開サイト・サービス一覧</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
-         line-height: 1.6; color: #1f2328; background: #f6f8fa; padding: 2rem 1rem; }
-  .wrap { max-width: 920px; margin: 0 auto; }
-  header { margin-bottom: 2rem; }
-  header h1 { font-size: 1.5rem; border-bottom: 2px solid #0969da; padding-bottom: .5rem; }
-  header p { color: #57606a; margin-top: .5rem; font-size: .9rem; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-  .card { display: block; background: #fff; border: 1px solid #d0d7de; border-radius: 8px;
-          padding: 1rem; text-decoration: none; color: inherit;
-          transition: border-color .15s, box-shadow .15s; }
-  .card:hover { border-color: #0969da; box-shadow: 0 1px 6px rgba(9,105,218,.2); }
-  .card h3 { font-size: 1rem; color: #0969da; }
-  .card .desc { font-size: .85rem; color: #57606a; margin: .4rem 0; min-height: 2.6em; }
-  .card .meta { font-size: .75rem; color: #8b949e; border-top: 1px solid #eaeef2; padding-top: .5rem; }
-  .card .updated { margin-right: .5rem; }
-  footer { margin-top: 2rem; text-align: center; color: #8b949e; font-size: .8rem; }
+  html { font-size: 18px; }
+  body { font-family: "Arial Black", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+         line-height: 1.5; color: #000; background: #f6f6f4; padding: 2.5rem 1rem; min-height: 100vh; }
+  .wrap { max-width: 1020px; margin: 0 auto; }
+  header { margin-bottom: 2.5rem; }
+  .badge { display: inline-block; background: #000; color: #fff; font-weight: 900;
+           padding: .3rem .8rem; border: 3px solid #000; box-shadow: 4px 4px 0 #ff2d75; margin-bottom: 1.2rem; }
+  header h1 { font-size: 2rem; font-weight: 900; border: 4px solid #000; background: #ffe14d;
+              display: inline-block; padding: .6rem 1.2rem; box-shadow: 8px 8px 0 #000;
+              text-transform: uppercase; letter-spacing: .5px; }
+  header p { margin-top: 1.2rem; font-size: 1rem; font-weight: 700; }
+  header p b { background: #9ef01a; padding: .1rem .4rem; border: 2px solid #000; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.6rem; }
+  .card { display: flex; flex-direction: column; position: relative; padding: 1.4rem;
+          border: 4px solid #000; box-shadow: 8px 8px 0 #000; border-radius: 0;
+          text-decoration: none; color: #000;
+          transition: transform .1s ease, box-shadow .1s ease; }
+  .card:hover { transform: translate(-4px, -4px); box-shadow: 0 0 0 4px #000; }
+  .card:active { transform: translate(2px, 6px); box-shadow: 2px 2px 0 #000; }
+  .card .tag { position: absolute; top: -0.9rem; right: 1rem; background: #000; color: #fff;
+               font-size: .8rem; font-weight: 900; padding: .15rem .6rem; border: 2px solid #fff;
+               transform: rotate(3deg); }
+  .card h3 { font-size: 1.5rem; font-weight: 900; margin: .6rem 0 .4rem; word-break: break-all; }
+  .card .desc { font-size: 1.05rem; font-weight: 700; min-height: 3em; flex: 1; }
+  .card .meta { border-top: 3px dashed #000; padding-top: .8rem; margin-top: .5rem; }
+  .card .repo { font-size: .95rem; font-weight: 900; }
+  .card .date { align-self: flex-end; margin-top: .5rem; font-size: .85rem; font-weight: 900;
+                background: #fff; border: 2px solid #000; padding: .1rem .4rem; }
+  footer { margin-top: 3rem; text-align: center; font-size: .9rem; font-weight: 900;
+           border-top: 4px solid #000; padding-top: 1rem; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>watanabe3tipapa の公開サイト・サービス一覧</h1>
-    <p>{{COUNT}} 件（GitHub Actions で自動生成 / 最終更新: {{GENERATED_AT}}）</p>
+    <span class="badge">MY STUFF ON THE WEB</span>
+    <h1>公開サイト・サービス一覧</h1>
+    <p>watanabe3tipapa の公開リポジトリを <b>{{COUNT}}</b> 件ピックアップ。</p>
+    <p><small>自動生成: {{GENERATED_AT}}</small></p>
   </header>
   <div class="grid">
 {{CARDS}}
