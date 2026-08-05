@@ -145,7 +145,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .card h3 { font-size: 1.5rem; font-weight: 900; margin: .6rem 0 .4rem; word-break: break-all; }
   .card .desc { font-size: 1.05rem; font-weight: 700; min-height: 3em; flex: 1; }
   .card .meta { border-top: 3px dashed #000; padding-top: .8rem; margin-top: .5rem; }
-  .card .repo { font-size: .95rem; font-weight: 900; }
+  .card .repo { font-size: .85rem; font-weight: 900; }
   .card .date { align-self: flex-end; margin-top: .5rem; font-size: .85rem; font-weight: 900;
                 background: #fff; border: 2px solid #000; padding: .1rem .4rem; }
   footer { margin-top: 3rem; text-align: center; font-size: .9rem; font-weight: 900;
