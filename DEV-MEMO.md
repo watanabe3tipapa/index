@@ -76,3 +76,10 @@ docs/index.md                     # 廃止（削除）
 - ダミー学習用 `run.yml` を削除（毎 push 動作の無駄を排除）。
 - 未コミット残: `PLAN.md`（計画文書のため本リポジトリへは含めず）。
 - **次の確認**：GitHub Actions タブで `Update repository index` が手動トリガ / cron で回り、`docs/index.html` が公開されることを確認。
+
+### GitHub Pages 公開（2026-08-05）
+- Pages は既に有効だったが、公開元が `/`（ルート）だったため **`main` / `/docs`** に変更。
+- `build_type` が `workflow`（Actions 前提）だったため、**`legacy`（ブランチからデプロイ）に変更**。
+- 空コミットの push でビルドを発火 → **`https://watanabe3tipapa.github.io/index/` が HTTP 200 で公開**。
+- 実機確認: title「watanabe3tipapa の公開サイト・サービス一覧」/ カード **71 件** / リンク正常。
+- **残TODO**：Actions の `Update repository index` が `legacy` 環境下で `docs/index.html` を更新→ push に成功することの実動作確認（毎日 cron で回る）。
