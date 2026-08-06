@@ -95,3 +95,14 @@ docs/index.md                     # 廃止（削除）
 - **フォント拡大**：`html { font-size: 18px }` 基準。h1 `2rem`、カード h3 `1.5rem`、desc `1.05rem`。
 - コミット `59e7e4d`「Restyle index LP in neo-brutalism with larger fonts」push 済み。
 - 検証: カード71件 / `box-shadow: 8px 8px 0 #000` 反映 / HTML 構文OK（32,943 bytes）。
+
+### LP カード URL 表記の調整（2026-08-05）
+- ユーザー要望の経緯:
+  1. URL フォント縮小（`.95rem` → `.85rem`、コミット `6e40dfd`）。
+  2. さらに縮小（`.75rem`、コミット `ae28b20`）。この際、Actions cron のタイムスタンプ更新（`d6e1eee`）と衝突 → rebase で解消。
+  3. 「URL 非表示」要望 → いったん URL 要素ごと除去（コミット `7ad0b4a`）＋ DEV-MEMO 追録（`87b2dcf`）。
+  4. **履歴巻き戻し**: ユーザー指示で 2 つ前の状態（`ae28b20`）へ `git reset --hard` + `force-with-lease` push（`7ad0b4a` / `87b2dcf` を破棄）。
+  5. **最終仕様（2026-08-05）**: 「`github.com/watanabe3tipapa/` の接頭辞だけ非表示、リポジトリ名は表示」。
+     `render_card` を `github.com/{OWNER}/{name}` → `{name}` のみに変更。コミット `891856e`「Show only repo name in card URL label」push 済み。
+- 検証: 生成後に `github.com/watanabe3tipapa` を含む出力 0 件 / リポジトリ名のみ表示（`frameworks-now` 等）。
+- 現在のカード構成: 見出し / 説明 / リポジトリ名（`.repo`）/ 更新日。
