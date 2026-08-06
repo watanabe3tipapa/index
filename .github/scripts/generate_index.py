@@ -106,7 +106,7 @@ def render_card(r, index):
         <h3>{r["name"]}</h3>
         <p class="desc">{desc}</p>
         <p class="meta">
-          <span class="repo">github.com/{OWNER}/{r["name"]}</span>
+          <span class="repo">{r["name"]}</span>
         </p>
         <p class="date">更新 {r["updated"]}</p>
       </a>'''
