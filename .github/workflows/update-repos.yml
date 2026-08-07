@@ -1,8 +1,8 @@
 name: Update repository index
 on:
   schedule:
-    # 毎日 08:00 UTC（日本時間 17:00）
-    - cron: '0 8 * * *'
+    # 毎日 01:00 UTC（日本時間 10:00）
+    - cron: '0 1 * * *'
   workflow_dispatch:
 
 jobs:
