@@ -5,8 +5,10 @@ Usage:
     GITHUB_TOKEN=xxx python3 .github/scripts/generate_index.py
     (token is optional; unauthenticated API is limited to ~60 req/hr)
 """
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
+import urllib.error
 import urllib.request
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -63,6 +65,32 @@ def pages_url(repo):
     return f"{CONFIG.get('baseUrl', 'https://' + OWNER + '.github.io')}/{repo['name']}/"
 
 
+def http_status(url, timeout=15):
+    """Return HTTP status code for url; -1 for connection/timeout errors."""
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (index-generator)"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status
+    except urllib.error.HTTPError as e:
+        return e.code
+    except Exception:
+        return -1
+
+
+def annotate_status(items):
+    """Attach 'status' to each item by checking its pages URL concurrently."""
+    def probe(item):
+        return item["name"], http_status(item["pages_url"])
+    with ThreadPoolExecutor(max_workers=10) as ex:
+        futures = [ex.submit(probe, it) for it in items]
+        status = {}
+        for fut in as_completed(futures):
+            name, code = fut.result()
+            status[name] = code
+    for it in items:
+        it["status"] = status.get(it["name"], -1)
+
+
 def main():
     repos = fetch_all_repos()
     items = []
@@ -82,19 +110,45 @@ def main():
 
     items.sort(key=lambda r: r["updated"], reverse=True)
 
-    cards = "\n".join(render_card(r, i) for i, r in enumerate(items))
-    html = HTML_TEMPLATE.replace("{{CARDS}}", cards).replace(
-        "{{COUNT}}", str(len(items))
-    ).replace("{{GENERATED_AT}}", __import__("datetime").datetime.now(
+    annotate_status(items)
+
+    ok_items = [it for it in items if it["status"] not in (404, -1)]
+    broken_items = [it for it in items if it["status"] in (404, -1)]
+    # Now:404 は最下部へ（更新順に整列）
+    broken_items.sort(key=lambda r: r["updated"], reverse=True)
+
+    cards = "\n".join(render_card(r, i) for i, r in enumerate(ok_items))
+    broken_cards = "\n".join(render_broken_card(r) for r in broken_items)
+
+    html = HTML_TEMPLATE
+    html = html.replace("{{COUNT}}", str(len(items)))
+    html = html.replace("{{OK_COUNT}}", str(len(ok_items)))
+    html = html.replace("{{BROKEN_COUNT}}", str(len(broken_items)))
+    html = html.replace("{{CARDS}}", cards)
+    html = html.replace("{{BROKEN_CARDS}}", broken_cards)
+    html = html.replace("{{GENERATED_AT}}", __import__("datetime").datetime.now(
         __import__("datetime").timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
 
     out = os.path.join(REPO_ROOT, "docs", "index.html")
     with open(out, "w") as f:
         f.write(html)
-    print(f"Generated {len(items)} repos -> {out}")
+    print(f"Generated {len(items)} repos ({len(ok_items)} ok / {len(broken_items)} 404) -> {out}")
 
 
 CARD_COLORS = ["#fff", "#ffe14d", "#9ef01a", "#7ec8e3", "#ffadad"]
+
+
+def render_broken_card(r):
+    desc = r["description"] or "（説明なし）"
+    status = r.get("status", -1)
+    label = "404" if status == 404 else "ERR"
+    return f'''
+      <a class="card broken" href="{r["repo_url"]}" rel="noopener" target="_blank">
+        <span class="tag broken-tag">NOW:{label}</span>
+        <h3>{r["name"]}</h3>
+        <p class="desc">{desc}</p>
+        <p class="date">更新 {r["updated"]}</p>
+      </a>'''
 
 
 def render_card(r, index):
@@ -148,6 +202,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .card .repo { font-size: .75rem; font-weight: 900; }
   .card .date { align-self: flex-end; margin-top: .5rem; font-size: .85rem; font-weight: 900;
                 background: #fff; border: 2px solid #000; padding: .1rem .4rem; }
+  .section { margin-top: 3rem; border-top: 4px solid #000; padding-top: 1.5rem; }
+  .section .title { display: inline-block; background: #000; color: #fff; font-weight: 900;
+                    font-size: 1.3rem; padding: .4rem 1rem; border: 3px solid #000;
+                    box-shadow: 6px 6px 0 #ff2d75; margin-bottom: 1.2rem; }
+  .section .title small { font-size: .9rem; }
+  .card.broken { border-color: #ff2d75; background: #fff0f3; box-shadow: 8px 8px 0 #ff2d75; }
+  .card.broken:hover { transform: none; box-shadow: 8px 8px 0 #ff2d75; }
+  .card.broken h3 { color: #ff2d75; }
+  .broken-tag { background: #ff2d75; }
   footer { margin-top: 3rem; text-align: center; font-size: .9rem; font-weight: 900;
            border-top: 4px solid #000; padding-top: 1rem; }
 </style>
@@ -162,6 +225,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </header>
   <div class="grid">
 {{CARDS}}
+  </div>
+  <div class="section" id="now-404">
+    <span class="title">Now:404 <small>({{BROKEN_COUNT}})</small></span>
+    <div class="grid">
+{{BROKEN_CARDS}}
+    </div>
   </div>
   <footer>Powered by GitHub Actions &amp; GitHub Pages</footer>
 </div>
