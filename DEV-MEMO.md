@@ -116,3 +116,25 @@ docs/index.md                     # 廃止（削除）
 - 確認: `origin/main` と同期、公開ページ `https://watanabe3tipapa.github.io/index/` は HTTP 200。
 - **補足（実行時刻）**: 設定は毎日 01:00 UTC（10:00 JST）。GitHub の schedule 遅延により実実行は概ね
   **03:30 UTC（12:30 JST）頃**になる（2026-08-06 実績 10:28 UTC）。
+
+### Now:404 カテゴリー追加（2026-08-07）
+- ユーザー要望: 「それぞれの GitHub Pages で 404 となっているものを、表の最下部で **Now:404** という
+  カテゴリーにまとめて表示。手直しする際に便利」。
+- `generate_index.py` を拡張:
+  - `http_status()`: 各 Pages URL を GET して HTTP ステータスを取得（`urllib`、タイムアウト15s）。
+  - `annotate_status()`: `ThreadPoolExecutor(max_workers=10)` で**並列チェック**（71→72件でも高速）。
+  - 分類: `status` が **404 or -1**（接続エラー）→ `broken_items`、それ以外 → `ok_items`。
+  - 404 カードは **`repo_url`（GitHub リポジトリ）へリンク**（修正作業に直結）。通常カードは `pages_url` のまま。
+- HTML テンプレート: 最下部に `#now-404` セクション追加。
+  - タイトル「Now:404 (件数)」、赤系デザイン（`#ff2d75` 枠/影）、`NOW:404` / `NOW:ERR` スタンプ。
+  - ヘッダー件数は「全72件」表示のまま、通常カードは 54 枚に。
+- 生成結果: **72 件（54 ok / 18 404）**。
+  - Now:404 に分類されたリポジトリ（18件）: markdown-editor / ollama-sakana-ai / ollama-model-runner /
+    ollama-lexical-editor-pe / joke-macos9-pe / joke-windows3-pe / joke-windows3-ce / ollama-eo-pe /
+    notion-ollama-webui / ai-ratchet-pe / notion-ollama-pe / markitdown-ce / mintlify-docs / zakki6 /
+    ReStartPC-ACTION / next.js / react-markdown / docs
+- コミット `7b59925`「Add Now:404 section listing repos with failing Pages」push 済み。
+- 手動更新（workflow_dispatch、run ID `31156596517`）→ **success**、Pages 反映確認済み。
+- **注意（誤判定の可能性）**: 100件目以降に存在した `docs` / `next.js` / `react-markdown` / `ReStartPC-ACTION`
+  は専用サブドメイン等で URL 形式が異なる可能性。カスタムドメインやリダイレクトの場合は除外リスト
+  （`index-exclude.txt`）や判定ロジックで調整可能。
