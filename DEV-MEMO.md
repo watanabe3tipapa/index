@@ -106,3 +106,13 @@ docs/index.md                     # 廃止（削除）
      `render_card` を `github.com/{OWNER}/{name}` → `{name}` のみに変更。コミット `891856e`「Show only repo name in card URL label」push 済み。
 - 検証: 生成後に `github.com/watanabe3tipapa` を含む出力 0 件 / リポジトリ名のみ表示（`frameworks-now` 等）。
 - 現在のカード構成: 見出し / 説明 / リポジトリ名（`.repo`）/ 更新日。
+
+### 日次スケジュール変更 & 手動更新（2026-08-07）
+- ユーザー要望: 「設定時刻を **01:00 UTC** に変更（JST 10:00）」＋「手動で更新も行う」。
+- `.github/workflows/update-repos.yml` の `cron: '0 8 * * *'` → **`cron: '0 1 * * *'`** に変更。
+- コミット `5e2796f`「Set daily schedule to 01:00 UTC」push 済み（push 時、cron 生成コミット `760d25a` と rebase で吸収）。
+- 手動更新: `gh workflow run update-repos.yml`（workflow_dispatch、run ID 31155668110）→ **success**。
+  手動実行が `docs/index.html` を再生成し、コミット `3a087ae`「Update repository index [ci]」として push。
+- 確認: `origin/main` と同期、公開ページ `https://watanabe3tipapa.github.io/index/` は HTTP 200。
+- **補足（実行時刻）**: 設定は毎日 01:00 UTC（10:00 JST）。GitHub の schedule 遅延により実実行は概ね
+  **03:30 UTC（12:30 JST）頃**になる（2026-08-06 実績 10:28 UTC）。
