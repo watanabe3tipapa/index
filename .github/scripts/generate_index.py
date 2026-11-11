@@ -6,10 +6,12 @@ Usage:
     (token is optional; unauthenticated API is limited to ~60 req/hr)
 """
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import html
 import json
 import os
 import urllib.error
 import urllib.request
+from urllib.parse import urlparse
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -28,6 +30,17 @@ with open(os.path.join(REPO_ROOT, ".github", "index-exclude.txt")) as f:
         for line in f
         if line.strip() and not line.strip().startswith("#")
     }
+
+# Private リポジトリ由来の LP は API から取得できないため、手動管理の JSON を読み込む。
+try:
+    with open(os.path.join(REPO_ROOT, ".github", "private-links.json")) as f:
+        PRIVATE_LINKS = json.load(f)
+except FileNotFoundError:
+    PRIVATE_LINKS = []
+
+
+def esc(value):
+    return html.escape(str(value or ""), quote=True)
 
 
 def api(path):
@@ -91,6 +104,20 @@ def annotate_status(items):
         it["status"] = status.get(it["name"], -1)
 
 
+def annotate_private_status(items):
+    """Attach 'status' to private-derived links by checking each URL."""
+    def probe(item):
+        return item["url"], http_status(item["url"])
+    with ThreadPoolExecutor(max_workers=10) as ex:
+        futures = [ex.submit(probe, it) for it in items]
+        status = {}
+        for fut in as_completed(futures):
+            url, code = fut.result()
+            status[url] = code
+    for it in items:
+        it["status"] = status.get(it["url"], -1)
+
+
 def main():
     repos = fetch_all_repos()
     items = []
@@ -112,6 +139,10 @@ def main():
 
     annotate_status(items)
 
+    private_items = [dict(it) for it in PRIVATE_LINKS]
+    private_items.sort(key=lambda r: r.get("updated", ""), reverse=True)
+    annotate_private_status(private_items)
+
     ok_items = [it for it in items if it["status"] not in (404, -1)]
     broken_items = [it for it in items if it["status"] in (404, -1)]
     # Now:404 は最下部へ（更新順に整列）
@@ -119,50 +150,78 @@ def main():
 
     cards = "\n".join(render_card(r, i) for i, r in enumerate(ok_items))
     broken_cards = "\n".join(render_broken_card(r) for r in broken_items)
+    private_cards = "\n".join(render_private_card(r, i) for i, r in enumerate(private_items))
 
-    html = HTML_TEMPLATE
-    html = html.replace("{{COUNT}}", str(len(items)))
-    html = html.replace("{{OK_COUNT}}", str(len(ok_items)))
-    html = html.replace("{{BROKEN_COUNT}}", str(len(broken_items)))
-    html = html.replace("{{CARDS}}", cards)
-    html = html.replace("{{BROKEN_CARDS}}", broken_cards)
-    html = html.replace("{{GENERATED_AT}}", __import__("datetime").datetime.now(
+    html_out = HTML_TEMPLATE
+    html_out = html_out.replace("{{COUNT}}", str(len(items)))
+    html_out = html_out.replace("{{OK_COUNT}}", str(len(ok_items)))
+    html_out = html_out.replace("{{BROKEN_COUNT}}", str(len(broken_items)))
+    html_out = html_out.replace("{{PRIVATE_COUNT}}", str(len(private_items)))
+    html_out = html_out.replace("{{CARDS}}", cards)
+    html_out = html_out.replace("{{BROKEN_CARDS}}", broken_cards)
+    html_out = html_out.replace("{{PRIVATE_CARDS}}", private_cards)
+    html_out = html_out.replace("{{GENERATED_AT}}", __import__("datetime").datetime.now(
         __import__("datetime").timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
 
     out = os.path.join(REPO_ROOT, "docs", "index.html")
     with open(out, "w") as f:
-        f.write(html)
-    print(f"Generated {len(items)} repos ({len(ok_items)} ok / {len(broken_items)} 404) -> {out}")
+        f.write(html_out)
+    print(f"Generated {len(items)} repos ({len(ok_items)} ok / {len(broken_items)} 404) "
+          f"+ {len(private_items)} private-derived links -> {out}")
 
 
 CARD_COLORS = ["#fff", "#ffe14d", "#9ef01a", "#7ec8e3", "#ffadad"]
+PRIVATE_COLORS = ["#e9d5ff", "#ddd6fe", "#c7d2fe", "#fae8ff", "#fff"]
 
 
 def render_broken_card(r):
-    desc = r["description"] or "（説明なし）"
+    desc = esc(r["description"] or "（説明なし）")
     status = r.get("status", -1)
     label = "404" if status == 404 else "ERR"
     return f'''
-      <a class="card broken" href="{r["repo_url"]}" rel="noopener" target="_blank">
+      <a class="card broken" href="{esc(r["repo_url"])}" rel="noopener" target="_blank">
         <span class="tag broken-tag">NOW:{label}</span>
-        <h3>{r["name"]}</h3>
+        <h3>{esc(r["name"])}</h3>
         <p class="desc">{desc}</p>
-        <p class="date">更新 {r["updated"]}</p>
+        <p class="date">更新 {esc(r["updated"])}</p>
       </a>'''
 
 
 def render_card(r, index):
-    desc = r["description"] or "（説明なし）"
+    desc = esc(r["description"] or "（説明なし）")
     bg = CARD_COLORS[index % len(CARD_COLORS)]
     return f'''
-      <a class="card" style="background:{bg}" href="{r["pages_url"]}" rel="noopener">
+      <a class="card" style="background:{bg}" href="{esc(r["pages_url"])}" rel="noopener">
         <span class="tag">UPDATE-STAMP</span>
-        <h3>{r["name"]}</h3>
+        <h3>{esc(r["name"])}</h3>
         <p class="desc">{desc}</p>
         <p class="meta">
-          <span class="repo">{r["name"]}</span>
+          <span class="repo">{esc(r["name"])}</span>
         </p>
-        <p class="date">更新 {r["updated"]}</p>
+        <p class="date">更新 {esc(r["updated"])}</p>
+      </a>'''
+
+
+def render_private_card(r, index):
+    desc = esc(r.get("description") or "（説明なし）")
+    url = r.get("url", "")
+    host = urlparse(url).hostname or url
+    status = r.get("status", -1)
+    broken = status in (404, -1)
+    label = "404" if status == 404 else "ERR"
+    bg = PRIVATE_COLORS[index % len(PRIVATE_COLORS)]
+    card_class = "card private broken" if broken else "card private"
+    tag = f'NOW:{label}' if broken else "FROM PRIVATE"
+    tag_class = "tag private-tag broken-tag" if broken else "tag private-tag"
+    return f'''
+      <a class="{card_class}" style="background:{bg}" href="{esc(url)}" rel="noopener" target="_blank">
+        <span class="{tag_class}">{tag}</span>
+        <h3>{esc(r.get("name"))}</h3>
+        <p class="desc">{desc}</p>
+        <p class="meta">
+          <span class="repo">{esc(host)}</span>
+        </p>
+        <p class="date">更新 {esc(r.get("updated"))}</p>
       </a>'''
 
 
@@ -171,7 +230,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>watanabe3tipapa の公開サイト・サービス一覧</title>
+<title>GitHub - INDEX</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 18px; }
@@ -203,10 +262,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .card .date { align-self: flex-end; margin-top: .5rem; font-size: .85rem; font-weight: 900;
                 background: #fff; border: 2px solid #000; padding: .1rem .4rem; }
   .section { margin-top: 3rem; border-top: 4px solid #000; padding-top: 1.5rem; }
+  .section.first { margin-top: 0; border-top: none; padding-top: 0; }
   .section .title { display: inline-block; background: #000; color: #fff; font-weight: 900;
                     font-size: 1.3rem; padding: .4rem 1rem; border: 3px solid #000;
                     box-shadow: 6px 6px 0 #ff2d75; margin-bottom: 1.2rem; }
   .section .title small { font-size: .9rem; }
+  .section .title.private-title { box-shadow: 6px 6px 0 #7c3aed; }
+  .card.private { border-color: #7c3aed; box-shadow: 8px 8px 0 #7c3aed; }
+  .card.private:hover { box-shadow: 0 0 0 4px #7c3aed; }
+  .private-tag { background: #7c3aed; }
   .card.broken { border-color: #ff2d75; background: #fff0f3; box-shadow: 8px 8px 0 #ff2d75; }
   .card.broken:hover { transform: none; box-shadow: 8px 8px 0 #ff2d75; }
   .card.broken h3 { color: #ff2d75; }
@@ -219,12 +283,21 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="wrap">
   <header>
     <span class="badge">MY STUFF ON THE WEB</span>
-    <h1>公開サイト・サービス一覧</h1>
-    <p>watanabe3tipapa の公開リポジトリを <b>{{COUNT}}</b> 件ピックアップ。</p>
+    <h1>GitHub - INDEX</h1>
+    <p>公開リポジトリ <b>{{COUNT}}</b> 件 と、Private リポジトリから派生した LP <b>{{PRIVATE_COUNT}}</b> 件。</p>
     <p><small>自動生成: {{GENERATED_AT}}</small></p>
   </header>
-  <div class="grid">
+  <div class="section first" id="public-repos">
+    <span class="title">Public リポジトリ <small>({{OK_COUNT}})</small></span>
+    <div class="grid">
 {{CARDS}}
+    </div>
+  </div>
+  <div class="section" id="private-derived">
+    <span class="title private-title">Private リポジトリから派生する LP など <small>({{PRIVATE_COUNT}})</small></span>
+    <div class="grid">
+{{PRIVATE_CARDS}}
+    </div>
   </div>
   <div class="section" id="now-404">
     <span class="title">Now:404 <small>({{BROKEN_COUNT}})</small></span>

@@ -1,0 +1,200 @@
+[
+  {
+    "name": "quarto-editor-pe",
+    "description": "Quartoドキュメントエディタ ",
+    "url": "https://quarto-editor-pe.vercel.app",
+    "updated": "2026-11-11"
+  },
+  {
+    "name": "mercury-editor-desktop",
+    "description": "ローカルファーストのデスクトップ執筆環境。React + Vite + Lexical の Web版と、Tauri v2 / Rust GPUI（移行中）のデスクトップ版を提供。ブロック型 WYSIWYG、Markdown / Source 切替、HTML 相互運用、ローカルLLM連携を備えます。",
+    "url": "https://mercury-editor-desktop.vercel.app/",
+    "updated": "2026-11-10"
+  },
+  {
+    "name": "osx",
+    "description": "osx - watanabe3ti.com",
+    "url": "https://watanabe3ti-osx.vercel.app",
+    "updated": "2026-11-06"
+  },
+  {
+    "name": "webforai-main-cloudflare",
+    "description": "webforai - DIY",
+    "url": "https://watanabe3tipapa.github.io/webforai-main-cloudflare/",
+    "updated": "2026-11-05"
+  },
+  {
+    "name": "right-stuff-editor-dash",
+    "description": "リッチテキストとMarkdownを行き来し、AIの補完・変換・チャットをいつでも呼び出せるローカルファーストの編集環境。Zen/タイプライターモード、文体プロファイル、エンティティメモリ、Mermaid/KaTeXプレビュー、LLM 18種（Ollama/OpenAI/Anthropic/Gemini ほか）に対応。",
+    "url": "https://right-stuff-editor-dash.vercel.app",
+    "updated": "2026-10-20"
+  },
+  {
+    "name": "void-seedling",
+    "description": "Void + React のツール集: Lexical エディタ、GitHub ダッシュボード、Apple Notes 移行、Archify、nb ノート公開（Cloudflare Workers+D1）",
+    "url": "https://void-seedling.watanabe3ti.workers.dev",
+    "updated": "2026-10-19"
+  },
+  {
+    "name": "gpui-seedling",
+    "description": "Native desktop tools that make what is happening inside a device easy to see. Self-contained gpui-shell apps written in JavaScript and drawn by GPUI — no browser, no Node, no build step.",
+    "url": "https://gpui-seedling.pages.dev",
+    "updated": "2026-10-15"
+  },
+  {
+    "name": "mercury-editor",
+    "description": "ローカルファーストの執筆環境 / Local-first writing workspace — rich text, Markdown, JSON, AI chat, and a real PTY terminal on desktop.",
+    "url": "https://mercury-editor.vercel.app",
+    "updated": "2026-10-15"
+  },
+  {
+    "name": "release-tracker",
+    "description": "",
+    "url": "https://release-tracker.watanabe3ti.workers.dev",
+    "updated": "2026-10-10"
+  },
+  {
+    "name": "radio-days",
+    "description": "RADIO DAYS",
+    "url": "https://radio-days-watanabe3tipapa.vercel.app",
+    "updated": "2026-09-30"
+  },
+  {
+    "name": "right-stuff-editor",
+    "description": "",
+    "url": "https://right-stuff-editor.vercel.app",
+    "updated": "2026-09-26"
+  },
+  {
+    "name": "watanabe3ti-wterm",
+    "description": "Mac OS 9 拡張ターミナルから iframe 埋め込みで開く、ブラウザ内で動作する bash ターミナル（wterm / just-bash / Vite）",
+    "url": "https://watanabe3ti-wterm.vercel.app",
+    "updated": "2026-09-20"
+  },
+  {
+    "name": "main-casting",
+    "description": "Notion INDEX の Cloudflare 再実装。Astro 静的サイト + Pages Functions（/svc プロキシ・/go リダイレクト）+ KV、Neo Brutalism デザイン",
+    "url": "https://main-casting.pages.dev",
+    "updated": "2026-09-20"
+  },
+  {
+    "name": "main-plus",
+    "description": "",
+    "url": "https://watanabe3ti-main-plus.vercel.app",
+    "updated": "2026-09-18"
+  },
+  {
+    "name": "toolsmith-editor",
+    "description": "Toolsmith Editor （Lexical ＆ cosmic-ui）",
+    "url": "https://toolsmith-editor.vercel.app",
+    "updated": "2026-09-14"
+  },
+  {
+    "name": "graph-tutorial-pe",
+    "description": "graph-tutorial 個人利用版 — EBPMのためのエビデンス・パイプライン。e-Stat人口データとEBPM関連リポジトリを自律コレクタで収集し、ルーズリーフ調LPで可視化。",
+    "url": "https://graph-tutorial-lp.vercel.app",
+    "updated": "2026-09-12"
+  },
+  {
+    "name": "vgpu-sandbox",
+    "description": "テスト中",
+    "url": "https://watanabe3tipapa.github.io/vgpu-sandbox/",
+    "updated": "2026-09-04"
+  },
+  {
+    "name": "mintlify-docs",
+    "description": "Mintlifyを使ってみよう",
+    "url": "https://watanabe3ti.mintlify.app/",
+    "updated": "2026-08-26"
+  },
+  {
+    "name": "memogen",
+    "description": "TEST REPOSITORY（PUBLIC）",
+    "url": "https://watanabe3tipapa.github.io/memogen/",
+    "updated": "2026-08-26"
+  },
+  {
+    "name": "joke-windows3-ce",
+    "description": "Ollama Joke Environment （No relay API server）",
+    "url": "https://watanabe3tipapa.github.io/joke-windows3-ce/USAGE.html",
+    "updated": "2026-08-26"
+  },
+  {
+    "name": "joke-macos9-pe",
+    "description": "Ollama Joke Environment （Use API server）",
+    "url": "https://watanabe3tipapa.github.io/joke-macos9-pe/USAGE.html",
+    "updated": "2026-08-26"
+  },
+  {
+    "name": "right-now",
+    "description": "調整中",
+    "url": "https://watanabe3tipapa.github.io/right-now/",
+    "updated": "2026-08-26"
+  },
+  {
+    "name": "astro-output-cf",
+    "description": "Let’s leverage the benefits of Markdown in Astro",
+    "url": "https://astro-output.watanabe3ti.workers.dev",
+    "updated": "2026-08-22"
+  },
+  {
+    "name": "static-watanabe3tipapa-site-pe",
+    "description": "Deploy static websites to AWS S3 via CI/CD with GitHub Actions =~ Currently on hiatus",
+    "url": "https://static-watanabe3tipapa-site.s3.ap-northeast-1.amazonaws.com/index.html",
+    "updated": "2026-08-22"
+  },
+  {
+    "name": "neo",
+    "description": "watanabe3ti.com/neo ",
+    "url": "https://watanabe3ti.com/neo/",
+    "updated": "2026-06-15"
+  },
+  {
+    "name": "element-timing-toolkit",
+    "description": "Elementus",
+    "url": "https://element-timing-toolkit.vercel.app/dashboard",
+    "updated": "2026-05-16"
+  },
+  {
+    "name": "koalawriter-tauri",
+    "description": "",
+    "url": "https://koalawriter-tauri.vercel.app",
+    "updated": "2026-05-15"
+  },
+  {
+    "name": "toolsmith-cms",
+    "description": "",
+    "url": "https://toolsmith-cms.vercel.app",
+    "updated": "2026-04-28"
+  },
+  {
+    "name": "lexical-editor-pe",
+    "description": "Lexical Editor with shadcn/ui components",
+    "url": "https://watanabe3ti-lexical-editor.vercel.app",
+    "updated": "2026-04-10"
+  },
+  {
+    "name": "quarto-cms-pe",
+    "description": "TEST Repository",
+    "url": "https://watanabe3tipapa.github.io/quarto-cms-pe/",
+    "updated": "2026-04-10"
+  },
+  {
+    "name": "sarashina-ocr-ce",
+    "description": "Sarashina OCR - Website はモックです。| ローカルで実装し試用してください。",
+    "url": "https://sarashina-ocr-ce.vercel.app/",
+    "updated": "2026-04-10"
+  },
+  {
+    "name": "ollama-lexical-editor-ce",
+    "description": "AIアシスタントエディタ（調整中）",
+    "url": "https://ollama-lexical-editor-ce.vercel.app",
+    "updated": "2026-04-10"
+  },
+  {
+    "name": "local-port-checker",
+    "description": "ローカルポート・チェッカー（macOS用） テスト中",
+    "url": "https://watanabe3tipapa.github.io/local-port-checker/USAGE.html",
+    "updated": "2026-03-06"
+  }
+]
