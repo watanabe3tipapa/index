@@ -3,5 +3,6 @@
   "baseUrl": "https://watanabe3tipapa.github.io",
   "homeOverrides": {
     "watanabe3tipapa.github.io": "http://watanabe3ti.com"
-  }
+  },
+  "privateMinUpdated": "2023-01-01"
 }

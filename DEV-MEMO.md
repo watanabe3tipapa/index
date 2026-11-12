@@ -138,3 +138,19 @@ docs/index.md                     # 廃止（削除）
 - **注意（誤判定の可能性）**: 100件目以降に存在した `docs` / `next.js` / `react-markdown` / `ReStartPC-ACTION`
   は専用サブドメイン等で URL 形式が異なる可能性。カスタムドメインやリダイレクトの場合は除外リスト
   （`index-exclude.txt`）や判定ロジックで調整可能。
+### LP 再編集: Public / Private の2セクション化（2026-11-12）
+- ユーザー要望: 「GitHub - INDEX」「Public リポジトリのリンク（現行）」
+  「Private リポジトリから派生するLPなどへのリンク」の構成に再編集。
+- `generate_index.py` を拡張:
+  - ページタイトル / h1 を **`GitHub - INDEX`** に変更。
+  - 「Public リポジトリ」「Private リポジトリから派生する LP など」「Now:404」の3セクション構成。
+  - Private 由来カードは紫系（`#7c3aed`）＋ `FROM PRIVATE` スタンプ。404/ERR 時は既存の赤系表示に切替。
+  - 説明文・属性値を `html.escape` でエスケープ。
+- Private 由来リンクは API から取得不可（Actions の `GITHUB_TOKEN` は自リポジトリのみ）のため、
+  認証済み `gh repo list watanabe3tipapa --visibility private` から `.github/private-links.json` を生成して同梱。
+  - 収録条件: `homepageUrl` が公開 http(s) URL、`127.0.0.1` / `localhost` / CodeSandbox / mybinder は除外。
+  - **2022年更新のものは非掲載**（ユーザー指示）。恒久ルールとして
+    `index-config.json` に `"privateMinUpdated": "2023-01-01"` を追加し、スクリプト側でも除外。
+- 初回生成結果: **Public 93 件（83 ok / 10 404）＋ Private 由来 33 件**。
+  - Private 33 件のうち 10 件は匿名アクセスで 404/ERR（Private リポジトリの Pages アクセス制御等）。
+- README に2セクション構成・`private-links.json`・`privateMinUpdated` を追記。

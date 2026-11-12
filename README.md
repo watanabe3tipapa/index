@@ -11,11 +11,14 @@ GitHub Pagesで公開している「自分のサイト・サービス一覧」�
 
 - neo-brutalism調のカード一覧で、公開中のサイト・サービスを紹介する静的ページです。
 - 掲載対象は GitHub Pages が有効な公開リポジトリのみを想定しています。
+- 公開リポジトリの一覧に加えて、Private リポジトリから派生した LP・デモサイトへのリンクを別セクションで掲載します。
 - 一覧は自動生成され、最下部に Pages が 404 やエラーになっているリポジトリをまとめた「Now:404」セクションを表示します。
 
 ## 主な内容・特徴
 
 - 各カードにリポジトリ名（Pages URL へリンク）、説明、更新日を表示。
+- 「Public リポジトリ」と「Private リポジトリから派生する LP など」の2セクション構成。
+- Private 由来のリンクは `updated` が 2023-01-01 以降のものだけを掲載（`.github/index-config.json` の `privateMinUpdated` で変更可能）。
 - Now:404 セクションでは、Pages が 404/エラーになっているリポジトリへ直リンクし、`NOW:404` / `NOW:ERR` スタンプを付与。
 - 掲載対象のフィルタリング・オーバーライド用の設定ファイルを用意。
 
@@ -23,7 +26,8 @@ GitHub Pagesで公開している「自分のサイト・サービス一覧」�
 
 - 生成スクリプト: `.github/scripts/generate_index.py`
   - GitHub REST API でリポジトリ一覧を取得し、`docs/index.html` を生成します。
-  - 各 Pages URL に対して HTTP チェックを行い、404/エラーを Now:404 に分類（並列判定）。
+  - 各 Pages URL と Private 由来リンクに対して HTTP チェックを行い、404/エラーを Now:404 に分類（並列判定）。
+  - Private リポジトリは Actions の `GITHUB_TOKEN` から参照できないため、`.github/private-links.json` の内容をそのまま描画します。
 - 自動化: `.github/workflows/update-repos.yml`
   - 毎日 01:00 UTC の schedule と `workflow_dispatch` が設定されています。
   - README 内の注記では、GitHub の schedule 遅延により実実行は概ね 03:30 UTC（12:30 JST）頃になるとされています。
@@ -33,6 +37,7 @@ GitHub Pagesで公開している「自分のサイト・サービス一覧」�
 
 - `.github/index-exclude.txt` — 一覧に表示しないリポジトリの一覧（1 行 1 件、`#` はコメント）。
 - `.github/index-config.json` — owner / baseUrl / カスタムドメイン等のオーバーライド設定。
+- `.github/private-links.json` — Private リポジトリから派生した LP の手動管理リスト（name / url / description / updated）。
 - `.github/scripts/generate_index.py` — 生成ロジック・テンプレート・404 判定の実装を含みます。
 
 カード表示や 404 判定の扱いは上記ファイルで制御できます。掲載から外したい、または 404 判定を外したいリポジトリは `index-exclude.txt` で非掲載にできます。

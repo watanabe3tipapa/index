@@ -140,6 +140,9 @@ def main():
     annotate_status(items)
 
     private_items = [dict(it) for it in PRIVATE_LINKS]
+    min_updated = CONFIG.get("privateMinUpdated", "")
+    if min_updated:
+        private_items = [it for it in private_items if str(it.get("updated", "")) >= min_updated]
     private_items.sort(key=lambda r: r.get("updated", ""), reverse=True)
     annotate_private_status(private_items)
 
