@@ -1,7 +1,7 @@
 [
   {
     "name": "quarto-editor-pe",
-    "description": "Quartoドキュメントエディタ ",
+    "description": "Quartoドキュメントエディタ",
     "url": "https://quarto-editor-pe.vercel.app",
     "updated": "2026-11-11"
   },
@@ -139,13 +139,13 @@
   },
   {
     "name": "static-watanabe3tipapa-site-pe",
-    "description": "Deploy static websites to AWS S3 via CI/CD with GitHub Actions =~ Currently on hiatus",
+    "description": "Deploy static websites to AWS S3 via CI/CD with GitHub Actions — Currently on hiatus",
     "url": "https://static-watanabe3tipapa-site.s3.ap-northeast-1.amazonaws.com/index.html",
     "updated": "2026-08-22"
   },
   {
     "name": "neo",
-    "description": "watanabe3ti.com/neo ",
+    "description": "watanabe3ti.com/neo",
     "url": "https://watanabe3ti.com/neo/",
     "updated": "2026-06-15"
   },
@@ -181,7 +181,7 @@
   },
   {
     "name": "sarashina-ocr-ce",
-    "description": "Sarashina OCR - Website はモックです。| ローカルで実装し試用してください。",
+    "description": "Sarashina OCR - Website はモックです。ローカルで実装し試用してください。",
     "url": "https://sarashina-ocr-ce.vercel.app/",
     "updated": "2026-04-10"
   },

@@ -39,7 +39,7 @@
 
 ```
 .github/
-  workflows/update-repos.yml      # 定期/手動トリガの自動巡回ワークフロー
+  workflows/update-repos.yml      # 定期/手動トリガーの自動巡回ワークフロー
   scripts/generate_index.py       # API取得→docs/index.html 生成スクリプト
   index-config.json               # owner / baseUrl / homeOverrides 設定
   index-exclude.txt               # 非掲載リポジトリ（1行1件、# はコメント）
@@ -68,14 +68,14 @@ docs/index.md                     # 廃止（削除）
 - 出力: `docs/index.html`（677 行、カードグリッドレイアウト）。
 
 ### 残課題
-- **GitHub Actions の実動作確認**：未pushのため未検証。`git push` 後に Actions タブで `Update repository index` の実行（`workflow_dispatch` 手動実行）と Pages 更新を要確認。
+- **GitHub Actions の実動作確認**：未 push のため未検証。`git push` 後に Actions タブで `Update repository index` の実行（`workflow_dispatch` 手動実行）と Pages 更新を要確認。
 - 掲載初期状態は **71 件すべて表示**。ワークショップ系が多いため、`index-exclude.txt` で絞り込むべきか要判断。
 
 ### push 完了（2026-08-05）
 - コミット `66d5880`「Add GitHub Actions auto index generation for GitHub Pages」を `main` に push 成功。
 - ダミー学習用 `run.yml` を削除（毎 push 動作の無駄を排除）。
 - 未コミット残: `PLAN.md`（計画文書のため本リポジトリへは含めず）。
-- **次の確認**：GitHub Actions タブで `Update repository index` が手動トリガ / cron で回り、`docs/index.html` が公開されることを確認。
+- **次の確認**：GitHub Actions タブで `Update repository index` が手動トリガー / cron で回り、`docs/index.html` が公開されることを確認。
 
 ### GitHub Pages 公開（2026-08-05）
 - Pages は既に有効だったが、公開元が `/`（ルート）だったため **`main` / `/docs`** に変更。
@@ -85,7 +85,7 @@ docs/index.md                     # 廃止（削除）
 - **残TODO**：Actions の `Update repository index` が `legacy` 環境下で `docs/index.html` を更新→ push に成功することの実動作確認（毎日 cron で回る）。
 
 ### LP デザイン刷新（neo-brutalism）（2026-08-05）
-- ユーザー要望: 「LP の CSS を追加、neo Brutalism 調に変更、使用フォントのサイズを大きめに」。
+- ユーザー要望: 「LP の CSS を追加、neo-brutalism 調に変更、使用フォントのサイズを大きめに」。
 - `generate_index.py` のテンプレート / `render_card` を改修してから `docs/index.html` を再生成（71件維持）。
 - **neo-brutalism 実装**：
   - カード: `border: 4px solid #000` ＋ `box-shadow: 8px 8px 0 #000`（ハードシャドウ）、角丸なし。
@@ -140,7 +140,7 @@ docs/index.md                     # 廃止（削除）
   （`index-exclude.txt`）や判定ロジックで調整可能。
 ### LP 再編集: Public / Private の2セクション化（2026-11-12）
 - ユーザー要望: 「GitHub - INDEX」「Public リポジトリのリンク（現行）」
-  「Private リポジトリから派生するLPなどへのリンク」の構成に再編集。
+  「Private リポジトリから派生する LP などへのリンク」の構成に再編集。
 - `generate_index.py` を拡張:
   - ページタイトル / h1 を **`GitHub - INDEX`** に変更。
   - 「Public リポジトリ」「Private リポジトリから派生する LP など」「Now:404」の3セクション構成。
@@ -171,3 +171,13 @@ docs/index.md                     # 廃止（削除）
   - push 失敗時に `git pull --rebase --autostash` して最大3回再試行。
   - 実行結果とカード件数を Job Summary に出力。失敗時は生成物を artifact として 3 日保存。
 - ローカル検証: 再生成成功（Public 93 件 / 83 ok・10 404、Private 33 件）、バリデータの異常系テスト OK、Workflow YAML 構文 OK。
+
+### リポジトリ全体のタイポチェック（2026-11-12）
+- 手動で全テキストファイル（README / DEV-MEMO / ワークフロー / スクリプト / JSON / 生成 HTML）を確認。
+- 修正:
+  - README: 「GitHub Pagesで」「neo-brutalism調」の区切り、「README 内の…」の自己言及表現を整理。
+  - DEV-MEMO: 「neo Brutalism 調」→「neo-brutalism 調」、`未push` / `手動トリガ` / `派生するLP` の表記統一。
+  - `private-links.json`: 説明文の末尾スペース除去、`=~` → `—`、`。|` → `。`。
+  - `generate_index.py`: 検証メッセージ `Unreplaced` → `Unresolved`。
+  - 上流データ: `ollama-sakana-ai` の description `Rachet` → `Ratchet`（README の表記に合わせて修正）。
+- 再生成後もカード件数は Public 93（83 ok / 10 404）＋ Private 33 で変化なし。

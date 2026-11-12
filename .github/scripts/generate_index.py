@@ -189,7 +189,7 @@ def load_private_items():
 def validate_output(html_out, expected_cards):
     """Fail fast instead of publishing an incomplete/empty page."""
     if "{{" in html_out or "}}" in html_out:
-        raise RuntimeError("Unreplaced template placeholder remains in generated HTML")
+        raise RuntimeError("Unresolved template placeholder remains in generated HTML")
     if "<title>GitHub - INDEX</title>" not in html_out:
         raise RuntimeError("Generated HTML is missing the expected title")
     actual_cards = html_out.count('class="card')
