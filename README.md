@@ -30,7 +30,13 @@ GitHub Pagesで公開している「自分のサイト・サービス一覧」�
   - Private リポジトリは Actions の `GITHUB_TOKEN` から参照できないため、`.github/private-links.json` の内容をそのまま描画します。
 - 自動化: `.github/workflows/update-repos.yml`
   - 毎日 01:00 UTC の schedule と `workflow_dispatch` が設定されています。
+  - 実行は `concurrency` で直列化し、push 競合時は rebase して最大3回再試行します。
+  - Python 3.12 を固定し、ジョブのタイムアウトを 20 分に設定しています。
   - README 内の注記では、GitHub の schedule 遅延により実実行は概ね 03:30 UTC（12:30 JST）頃になるとされています。
+- 生成の堅牢化:
+  - GitHub API はタイムアウト付きで呼び出し、レート制限・5xx・ネットワークエラーを指数バックオフで再試行します。
+  - 生成 HTML はプレースホルダ残存・タイトル・カード件数を検証し、異常時は既存ページを上書きしません。
+  - 書き込みは一時ファイル＋`os.replace` によるアトミック更新です。
 - 配信: GitHub Pages（`main` ブランチの `/docs` フォルダ、`.nojekyll` を使って素の静的 HTML を配信）
 
 ## カスタマイズ（リポジトリ内の設定）

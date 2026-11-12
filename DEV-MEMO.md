@@ -154,3 +154,19 @@ docs/index.md                     # 廃止（削除）
 - 初回生成結果: **Public 93 件（83 ok / 10 404）＋ Private 由来 33 件**。
   - Private 33 件のうち 10 件は匿名アクセスで 404/ERR（Private リポジトリの Pages アクセス制御等）。
 - README に2セクション構成・`private-links.json`・`privateMinUpdated` を追記。
+
+### CI 堅牢化（2026-11-12）
+- 目的: 定期実行が API レート制限・一時障害・同時実行・push 競合・不完全な生成物で失敗／破損しないようにする。
+- `generate_index.py`:
+  - GitHub API 呼び出しに **20 秒タイムアウト**と**最大3回のリトライ**（403/429/5xx/接続エラー、`Retry-After`・`X-RateLimit-Reset` を考慮したバックオフ）を追加。
+  - ページネーション上限（50ページ）と API レスポンス型チェックを追加。
+  - ステータスチェックをインデックス管理に変更し、個別サイトの例外で全体が落ちないよう修正。
+  - Private リンクの正規化・URL 重複排除・不正エントリのスキップを追加。
+  - 生成後に **プレースホルダ残存 / タイトル / カード件数 / 0件** を検証。異常時は書き込まない。
+  - `docs/index.html` を **一時ファイル + `os.replace`** でアトミック更新。
+- `update-repos.yml`:
+  - `concurrency: update-repository-index`（`cancel-in-progress: false`）で定期／手動実行を直列化。
+  - `timeout-minutes: 20`、`setup-python@v5`（3.12 固定）、`PYTHONUNBUFFERED` / `GIT_TERMINAL_PROMPT=0` を設定。
+  - push 失敗時に `git pull --rebase --autostash` して最大3回再試行。
+  - 実行結果とカード件数を Job Summary に出力。失敗時は生成物を artifact として 3 日保存。
+- ローカル検証: 再生成成功（Public 93 件 / 83 ok・10 404、Private 33 件）、バリデータの異常系テスト OK、Workflow YAML 構文 OK。

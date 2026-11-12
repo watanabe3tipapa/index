@@ -4,11 +4,18 @@
 Usage:
     GITHUB_TOKEN=xxx python3 .github/scripts/generate_index.py
     (token is optional; unauthenticated API is limited to ~60 req/hr)
+
+The script retries transient GitHub API failures, validates the generated
+HTML, and writes the file atomically so a failed run never publishes a
+truncated page.
 """
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
 import html
 import json
 import os
+import sys
+import time
 import urllib.error
 import urllib.request
 from urllib.parse import urlparse
@@ -18,6 +25,11 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 BASE_URL = "https://api.github.com"
 OWNER = "watanabe3tipapa"
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
+
+API_TIMEOUT = 20
+API_RETRIES = 3
+STATUS_TIMEOUT = 15
+STATUS_WORKERS = 10
 
 with open(os.path.join(REPO_ROOT, ".github", "index-config.json")) as f:
     CONFIG = json.load(f)
@@ -43,6 +55,21 @@ def esc(value):
     return html.escape(str(value or ""), quote=True)
 
 
+def _retry_delay(err, attempt):
+    """Return seconds to wait before retrying an API error."""
+    headers = getattr(err, "headers", None)
+    if headers is not None:
+        retry_after = headers.get("Retry-After")
+        if retry_after and retry_after.isdigit():
+            return min(int(retry_after), 60)
+        reset = headers.get("X-RateLimit-Reset")
+        if reset and reset.isdigit():
+            delay = int(reset) - int(time.time()) + 1
+            if delay > 0:
+                return min(delay, 60)
+    return min(2 ** attempt, 30)
+
+
 def api(path):
     url = BASE_URL + path
     headers = {
@@ -51,22 +78,44 @@ def api(path):
     }
     if TOKEN:
         headers["Authorization"] = f"Bearer {TOKEN}"
-    req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req) as resp:
-        return json.load(resp)
+
+    last_error = None
+    for attempt in range(1, API_RETRIES + 1):
+        req = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=API_TIMEOUT) as resp:
+                return json.load(resp)
+        except urllib.error.HTTPError as e:
+            last_error = e
+            # 403/429 はレート制限、5xx は一時障害としてリトライする。
+            if e.code not in (403, 429, 500, 502, 503, 504):
+                raise
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+            last_error = e
+        if attempt < API_RETRIES:
+            wait = _retry_delay(last_error, attempt)
+            print(f"GitHub API error ({last_error}); retry {attempt}/{API_RETRIES} in {wait}s",
+                  file=sys.stderr)
+            time.sleep(wait)
+
+    raise RuntimeError(f"GitHub API request failed: {url}: {last_error}")
 
 
 def fetch_all_repos():
     page = 1
     repos = []
-    while True:
+    while page <= 50:
         batch = api(f"/users/{OWNER}/repos?per_page=100&page={page}&sort=updated")
+        if not isinstance(batch, list):
+            raise RuntimeError(f"Unexpected API response for page {page}: {type(batch).__name__}")
         if not batch:
             break
         repos.extend(batch)
-        page += 1
         if len(batch) < 100:
             break
+        page += 1
+    else:
+        raise RuntimeError("Repository pagination exceeded 50 pages; refusing to continue")
     return repos
 
 
@@ -78,7 +127,7 @@ def pages_url(repo):
     return f"{CONFIG.get('baseUrl', 'https://' + OWNER + '.github.io')}/{repo['name']}/"
 
 
-def http_status(url, timeout=15):
+def http_status(url, timeout=STATUS_TIMEOUT):
     """Return HTTP status code for url; -1 for connection/timeout errors."""
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (index-generator)"})
     try:
@@ -90,32 +139,77 @@ def http_status(url, timeout=15):
         return -1
 
 
-def annotate_status(items):
-    """Attach 'status' to each item by checking its pages URL concurrently."""
-    def probe(item):
-        return item["name"], http_status(item["pages_url"])
-    with ThreadPoolExecutor(max_workers=10) as ex:
-        futures = [ex.submit(probe, it) for it in items]
+def annotate_status(items, url_field):
+    """Attach 'status' to each item by checking its URL concurrently."""
+    def probe(index, item):
+        try:
+            return index, http_status(item[url_field])
+        except Exception as e:  # 個別サイトの異常で全体を止めない
+            print(f"Status check failed for {item.get(url_field)}: {e}", file=sys.stderr)
+            return index, -1
+
+    with ThreadPoolExecutor(max_workers=STATUS_WORKERS) as ex:
+        futures = [ex.submit(probe, i, it) for i, it in enumerate(items)]
         status = {}
         for fut in as_completed(futures):
-            name, code = fut.result()
-            status[name] = code
-    for it in items:
-        it["status"] = status.get(it["name"], -1)
+            index, code = fut.result()
+            status[index] = code
+    for index, item in enumerate(items):
+        item["status"] = status.get(index, -1)
 
 
-def annotate_private_status(items):
-    """Attach 'status' to private-derived links by checking each URL."""
-    def probe(item):
-        return item["url"], http_status(item["url"])
-    with ThreadPoolExecutor(max_workers=10) as ex:
-        futures = [ex.submit(probe, it) for it in items]
-        status = {}
-        for fut in as_completed(futures):
-            url, code = fut.result()
-            status[url] = code
-    for it in items:
-        it["status"] = status.get(it["url"], -1)
+def load_private_items():
+    """Normalize, filter and de-duplicate private-derived links."""
+    items = []
+    seen = set()
+    min_updated = CONFIG.get("privateMinUpdated", "")
+    for raw in PRIVATE_LINKS:
+        if not isinstance(raw, dict):
+            continue
+        url = str(raw.get("url", "")).strip()
+        name = str(raw.get("name", "")).strip()
+        if not name or not url.startswith(("http://", "https://")):
+            continue
+        if url in seen:
+            continue
+        updated = str(raw.get("updated", ""))[:10]
+        if min_updated and updated < min_updated:
+            continue
+        seen.add(url)
+        items.append({
+            "name": name,
+            "description": str(raw.get("description", "")),
+            "url": url,
+            "updated": updated,
+        })
+    items.sort(key=lambda r: r["updated"], reverse=True)
+    return items
+
+
+def validate_output(html_out, expected_cards):
+    """Fail fast instead of publishing an incomplete/empty page."""
+    if "{{" in html_out or "}}" in html_out:
+        raise RuntimeError("Unreplaced template placeholder remains in generated HTML")
+    if "<title>GitHub - INDEX</title>" not in html_out:
+        raise RuntimeError("Generated HTML is missing the expected title")
+    actual_cards = html_out.count('class="card')
+    if actual_cards != expected_cards:
+        raise RuntimeError(f"Card count mismatch: rendered {actual_cards}, expected {expected_cards}")
+    if expected_cards == 0:
+        raise RuntimeError("Refusing to write an index with zero cards")
+
+
+def write_atomic(path, content):
+    tmp_path = path + ".tmp"
+    try:
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, path)
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
 
 def main():
@@ -135,16 +229,14 @@ def main():
             "homepage": repo.get("homepage") or "",
         })
 
+    if not items:
+        raise RuntimeError("No public repositories with GitHub Pages found; refusing to overwrite index.html")
+
     items.sort(key=lambda r: r["updated"], reverse=True)
+    annotate_status(items, "pages_url")
 
-    annotate_status(items)
-
-    private_items = [dict(it) for it in PRIVATE_LINKS]
-    min_updated = CONFIG.get("privateMinUpdated", "")
-    if min_updated:
-        private_items = [it for it in private_items if str(it.get("updated", "")) >= min_updated]
-    private_items.sort(key=lambda r: r.get("updated", ""), reverse=True)
-    annotate_private_status(private_items)
+    private_items = load_private_items()
+    annotate_status(private_items, "url")
 
     ok_items = [it for it in items if it["status"] not in (404, -1)]
     broken_items = [it for it in items if it["status"] in (404, -1)]
@@ -163,12 +255,12 @@ def main():
     html_out = html_out.replace("{{CARDS}}", cards)
     html_out = html_out.replace("{{BROKEN_CARDS}}", broken_cards)
     html_out = html_out.replace("{{PRIVATE_CARDS}}", private_cards)
-    html_out = html_out.replace("{{GENERATED_AT}}", __import__("datetime").datetime.now(
-        __import__("datetime").timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
+    html_out = html_out.replace("{{GENERATED_AT}}", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
+
+    validate_output(html_out, len(ok_items) + len(broken_items) + len(private_items))
 
     out = os.path.join(REPO_ROOT, "docs", "index.html")
-    with open(out, "w") as f:
-        f.write(html_out)
+    write_atomic(out, html_out)
     print(f"Generated {len(items)} repos ({len(ok_items)} ok / {len(broken_items)} 404) "
           f"+ {len(private_items)} private-derived links -> {out}")
 

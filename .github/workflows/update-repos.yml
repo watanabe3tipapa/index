@@ -1,18 +1,35 @@
 name: Update repository index
+
 on:
   schedule:
     # 毎日 01:00 UTC（日本時間 10:00）
     - cron: '0 1 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
+# 定期実行と手動実行が重なっても直列化する（push 競合を防ぐ）
+concurrency:
+  group: update-repository-index
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 20
+    env:
+      PYTHONUNBUFFERED: "1"
+      GIT_TERMINAL_PROMPT: "0"
+      TZ: UTC
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Generate index.html
         env:
@@ -21,12 +38,51 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
+          set -euo pipefail
+          branch="${GITHUB_REF_NAME}"
+
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add docs/index.html
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
           git commit -m "Update repository index [ci]"
-          git push
+
+          # 他の push と競合した場合は rebase して最大3回まで再試行
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:${branch}"; then
+              echo "Pushed on attempt ${attempt}"
+              exit 0
+            fi
+            echo "Push failed (attempt ${attempt}); rebasing onto origin/${branch}" >&2
+            git pull --rebase --autostash origin "${branch}"
+            sleep $((attempt * 5))
+          done
+
+          echo "Failed to push after 3 attempts" >&2
+          exit 1
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Update repository index"
+            echo ""
+            echo "- Result: \`${{ job.status }}\`"
+            if [ -f docs/index.html ]; then
+              echo "- Public (ok): $(grep -c 'class="card"' docs/index.html || true)"
+              echo "- Private-derived: $(grep -c 'class="card private' docs/index.html || true)"
+              echo "- Now:404: $(grep -c 'class="card broken"' docs/index.html || true)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload generated page on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-index
+          path: docs/index.html
+          if-no-files-found: ignore
+          retention-days: 3
