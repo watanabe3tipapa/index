@@ -181,3 +181,12 @@ docs/index.md                     # 廃止（削除）
   - `generate_index.py`: 検証メッセージ `Unreplaced` → `Unresolved`。
   - 上流データ: `ollama-sakana-ai` の description `Rachet` → `Ratchet`（README の表記に合わせて修正）。
 - 再生成後もカード件数は Public 93（83 ok / 10 404）＋ Private 33 で変化なし。
+
+### 上流 description の整備（2026-11-12）
+- GitHub の公開リポジトリ description を全件スキャンし、前後スペース・連続スペース・全角スペースを正規化（9件）。
+  - 対象: gist-editor-ce / ReStartPC-ACTION / site-uploader-pe / seek-an / pdf-sandbox /
+    daily-news-digest / gtfs-jp-sandbox / next / cfos-sandbox
+- `gh repo edit --description` は `updated_at` を更新して並び順に影響するため、
+  Public カードの「更新日」と並び順を **`pushed_at`（最終 push 日時）** 基準に変更。
+  - `updated_at != pushed_at` は全93件中8件のみ（今回の description 編集7件＋issues-astro-cms）。
+- 再生成後: Public 93（83 ok / 10 404）＋ Private 33、表示上の空白異常 0 件。

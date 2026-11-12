@@ -17,6 +17,7 @@ GitHub Pages で公開している「自分のサイト・サービス一覧」�
 ## 主な内容・特徴
 
 - 各カードにリポジトリ名（Pages URL へリンク）、説明、更新日を表示。
+- 更新日はリポジトリの最終 push 日時（`pushed_at`）を使用し、description 編集などのメタデータ変更で並びが変わらないようにしています。
 - 「Public リポジトリ」と「Private リポジトリから派生する LP など」の2セクション構成。
 - Private 由来のリンクは `updated` が 2023-01-01 以降のものだけを掲載（`.github/index-config.json` の `privateMinUpdated` で変更可能）。
 - Now:404 セクションでは、Pages が 404/エラーになっているリポジトリへ直リンクし、`NOW:404` / `NOW:ERR` スタンプを付与。

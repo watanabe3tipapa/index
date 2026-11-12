@@ -225,7 +225,9 @@ def main():
             "description": repo.get("description") or "",
             "repo_url": repo["html_url"],
             "pages_url": pages_url(repo),
-            "updated": repo.get("updated_at", "")[:10],
+            # description 編集などで updated_at が動いても並びが変わらないよう、
+            # 実際の更新日は最終 push 日時を使う。
+            "updated": (repo.get("pushed_at") or repo.get("updated_at") or "")[:10],
             "homepage": repo.get("homepage") or "",
         })
 
