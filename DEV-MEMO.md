@@ -167,6 +167,7 @@ docs/index.md                     # 廃止（削除）
 - `update-repos.yml`:
   - `concurrency: update-repository-index`（`cancel-in-progress: false`）で定期／手動実行を直列化。
   - `timeout-minutes: 20`、`setup-python@v5`（3.12 固定）、`PYTHONUNBUFFERED` / `GIT_TERMINAL_PROMPT=0` を設定。
+  - Actions を `checkout@v7` / `setup-python@v7` / `upload-artifact@v7` に更新（Node 20 非推奨警告の解消）。
   - push 失敗時に `git pull --rebase --autostash` して最大3回再試行。
   - 実行結果とカード件数を Job Summary に出力。失敗時は生成物を artifact として 3 日保存。
 - ローカル検証: 再生成成功（Public 93 件 / 83 ok・10 404、Private 33 件）、バリデータの異常系テスト OK、Workflow YAML 構文 OK。
