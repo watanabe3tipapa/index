@@ -1,5 +1,6 @@
 {
   "owner": "watanabe3tipapa",
+  "siteRepo": "index",
   "baseUrl": "https://watanabe3tipapa.github.io",
   "homeOverrides": {
     "watanabe3tipapa.github.io": "http://watanabe3ti.com"
@@ -9,6 +10,7 @@
     "enabled": true,
     "seedSalt": "index",
     "recentDays": 14,
-    "curated": []
+    "curated": [],
+    "diagram": true
   }
 }

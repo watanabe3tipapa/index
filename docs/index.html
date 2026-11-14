@@ -73,16 +73,29 @@
   .sidecar-note { font-size: .78rem; font-weight: 700; }
   .pick { display: flex; flex-direction: column; gap: .45rem; margin: 1rem 0;
           padding: .9rem; border: 3px solid #000; background: #ffe14d; box-shadow: 5px 5px 0 #000;
-          text-decoration: none; color: #000; transition: transform .1s ease, box-shadow .1s ease; }
+          color: #000; transition: transform .1s ease, box-shadow .1s ease; }
   .pick:hover { transform: translate(-3px, -3px); box-shadow: 8px 8px 0 #000; }
   .pick:active { transform: translate(1px, 3px); box-shadow: 2px 2px 0 #000; }
+  .pick-main { display: flex; flex-direction: column; gap: .45rem;
+               color: #000; text-decoration: none; }
+  .pick-main:focus-visible { outline: 3px solid #ff2d75; outline-offset: 3px; }
   .pick-head { display: flex; justify-content: space-between; align-items: center;
                gap: .5rem; font-size: .68rem; font-weight: 900; }
   .pick-stamp { background: #000; color: #fff; padding: .15rem .45rem; }
   .pick h3 { font-size: 1.25rem; font-weight: 900; line-height: 1.25; word-break: break-all; }
   .pick-desc { font-size: .85rem; font-weight: 700; overflow-wrap: anywhere; }
-  .pick-foot { display: flex; justify-content: space-between; gap: .5rem;
-               border-top: 3px dashed #000; padding-top: .5rem; font-size: .72rem; font-weight: 900; }
+  .pick-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+               gap: .5rem; border-top: 3px dashed #000; padding-top: .5rem;
+               font-size: .72rem; font-weight: 900; }
+  .pick-reason { flex: 1 1 auto; }
+  .pick-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; }
+  .pick-action { display: inline-block; padding: .22rem .45rem; border: 2px solid #000;
+                 font-size: .68rem; font-weight: 900; line-height: 1.3; text-decoration: none;
+                 white-space: nowrap; transition: transform .1s ease, box-shadow .1s ease; }
+  .pick-open { background: #000; color: #fff; }
+  .pick-diagram { background: #9ef01a; color: #000; }
+  .pick-action:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 #000; }
+  .pick-action:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
   .ticker { overflow: hidden; border: 3px solid #000; background: #000; color: #fff;
             font-size: .78rem; font-weight: 900; }
   .ticker-track { display: flex; width: max-content; animation: ticker-scroll 26s linear infinite; }
@@ -97,6 +110,13 @@
   .sidecar-stats dt { font-size: .62rem; font-weight: 900; letter-spacing: .08em; }
   .sidecar-stats dd { font-size: 1.25rem; font-weight: 900; line-height: 1.2; }
   .sidecar-time { margin-top: .8rem; text-align: right; font-size: .68rem; font-weight: 900; }
+  .sidecar-site { margin-top: .8rem; }
+  .sidecar-site a { display: block; padding: .5rem .4rem; border: 3px solid #000; background: #7ec8e3;
+                    box-shadow: 4px 4px 0 #000; color: #000; font-size: .75rem; font-weight: 900;
+                    text-align: center; text-decoration: none;
+                    transition: transform .1s ease, box-shadow .1s ease; }
+  .sidecar-site a:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+  .sidecar-site a:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
   @keyframes led-pulse { 50% { background: #ff2d75; } }
   @keyframes ticker-scroll { to { transform: translateX(-50%); } }
   @media (max-width: 1120px) {
@@ -107,7 +127,7 @@
   @media (prefers-reduced-motion: reduce) {
     .led { animation: none; }
     .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
-    .pick { transition: none; }
+    .pick, .pick-action, .sidecar-site a { transition: none; }
   }
 </style>
 </head>
@@ -122,12 +142,23 @@
     </summary>
     <div class="sidecar-body">
       <p class="sidecar-note">公開中の Pages を毎日自動巡回しています。更新日は最終 push 日時です。</p>
-        <a class="pick" data-pick="svg-generator" href="https://watanabe3tipapa.github.io/svg-generator/" rel="noopener">
-          <span class="pick-head"><span class="pick-stamp">AUTO PICK</span><time>2026-11-14</time></span>
-          <h3>svg-generator</h3>
-          <span class="pick-desc">Sandbox（SVG_file）</span>
-          <span class="pick-foot"><span>静かな名作</span><span>OPEN →</span></span>
-        </a>
+        <div class="pick" data-pick="svg-generator">
+          <a class="pick-main" href="https://watanabe3tipapa.github.io/svg-generator/" rel="noopener">
+            <span class="pick-head"><span class="pick-stamp">AUTO PICK</span><time>2026-11-14</time></span>
+            <h3>svg-generator</h3>
+            <span class="pick-desc">Sandbox（SVG_file）</span>
+          </a>
+          <div class="pick-foot">
+            <span class="pick-reason">静かな名作</span>
+            <span class="pick-actions">
+              <a class="pick-action pick-open" href="https://watanabe3tipapa.github.io/svg-generator/" rel="noopener">OPEN →</a>
+              <a class="pick-action pick-diagram" data-diagram="svg-generator" href="https://gitdiagram.com/watanabe3tipapa/svg-generator"
+                 target="_blank" rel="noopener noreferrer"
+                 aria-label="svg-generator の構成図を GitDiagram で開く（新しいタブ）"
+                 title="GitDiagram で構成図を開く（新しいタブ・初回は生成に時間がかかります）">構成図 ↗</a>
+            </span>
+          </div>
+        </div>
         <div class="ticker" tabindex="0" aria-label="更新情報ティッカー（フォーカスで一時停止）">
           <div class="ticker-track"><span class="tick">NG 20件</span><span class="tick">editorial-collector 11-14 更新</span><span class="tick">watanabe3tipapa 11-14 更新</span><span class="tick">frameworks-now 11-14 更新</span><span class="tick">standard-libraries-now 11-14 更新</span><span class="tick">goose-sandbox 11-14 更新</span><span class="tick">3d-books 11-12 更新</span><span class="tick">NG 20件</span><span class="tick">editorial-collector 11-14 更新</span><span class="tick">watanabe3tipapa 11-14 更新</span><span class="tick">frameworks-now 11-14 更新</span><span class="tick">standard-libraries-now 11-14 更新</span><span class="tick">goose-sandbox 11-14 更新</span><span class="tick">3d-books 11-12 更新</span></div>
         </div>
@@ -136,7 +167,10 @@
         <div><dt>PRIVATE</dt><dd>33</dd></div>
         <div><dt>NG</dt><dd>20</dd></div>
       </dl>
-      <p class="sidecar-time">生成 2026-11-14 12:17 UTC</p>
+      <p class="sidecar-time">生成 2026-11-14 12:38 UTC</p>
+      <p class="sidecar-site"><a data-site-diagram="1" href="https://gitdiagram.com/watanabe3tipapa/index"
+        target="_blank" rel="noopener noreferrer"
+        title="GitDiagram でこのサイトの構成図を開く（新しいタブ）">このサイトの構成図 ↗</a></p>
     </div>
   </details>
   <script>
@@ -163,7 +197,7 @@
     <span class="badge">MY STUFF ON THE WEB</span>
     <h1>GitHub - INDEX</h1>
     <p>公開リポジトリ <b>93</b> 件 と、Private リポジトリから派生した LP <b>33</b> 件。</p>
-    <p><small>自動生成: 2026-11-14 12:17 UTC</small></p>
+    <p><small>自動生成: 2026-11-14 12:38 UTC</small></p>
   </header>
   <div class="section first" id="public-repos">
     <span class="title">Public リポジトリ <small>(83)</small></span>

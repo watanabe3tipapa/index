@@ -36,9 +36,13 @@ STATUS_WORKERS = 10
 # 「本日のおすすめ」の日付判定は JST 基準（UTC だと JST 9:00 で日付が変わるため）。
 JST = timezone(timedelta(hours=9))
 
+# GitHub URL の "hub" を "diagram" に置き換えた構成図サービス。
+GITDIAGRAM_BASE = "https://gitdiagram.com"
+
 with open(os.path.join(REPO_ROOT, ".github", "index-config.json")) as f:
     CONFIG = json.load(f)
 OWNER = CONFIG.get("owner", OWNER)
+SITE_REPO = CONFIG.get("siteRepo", "index")
 HOME_OVERRIDES = CONFIG.get("homeOverrides", {})
 
 with open(os.path.join(REPO_ROOT, ".github", "index-exclude.txt")) as f:
@@ -268,19 +272,59 @@ def pick_reason(pick):
     return "静かな名作"
 
 
-def render_pick(pick):
+def gitdiagram_url(repo_url):
+    """Map a public GitHub repository URL to its GitDiagram page."""
+    parsed = urlparse(repo_url or "")
+    if parsed.scheme not in ("http", "https"):
+        return None
+    if parsed.hostname not in ("github.com", "www.github.com"):
+        return None
+    path = parsed.path.rstrip("/")
+    if len([part for part in path.split("/") if part]) < 2:
+        return None
+    return GITDIAGRAM_BASE + path
+
+
+def render_pick(pick, show_diagram=True):
     if pick is None:
         return ""
     item = pick["item"]
+    name = esc(item["name"])
+    pages_url = esc(item["pages_url"])
     desc = esc(item.get("description") or "（説明なし）")
     stamp = "CURATED" if pick["curated"] else "AUTO PICK"
+    diagram_url = gitdiagram_url(item.get("repo_url")) if show_diagram else None
+    diagram = ""
+    if diagram_url:
+        diagram = f'''
+              <a class="pick-action pick-diagram" data-diagram="{name}" href="{esc(diagram_url)}"
+                 target="_blank" rel="noopener noreferrer"
+                 aria-label="{name} の構成図を GitDiagram で開く（新しいタブ）"
+                 title="GitDiagram で構成図を開く（新しいタブ・初回は生成に時間がかかります）">構成図 ↗</a>'''
     return f'''
-        <a class="pick" data-pick="{esc(item["name"])}" href="{esc(item["pages_url"])}" rel="noopener">
-          <span class="pick-head"><span class="pick-stamp">{stamp}</span><time>{esc(pick["day"])}</time></span>
-          <h3>{esc(item["name"])}</h3>
-          <span class="pick-desc">{desc}</span>
-          <span class="pick-foot"><span>{esc(pick_reason(pick))}</span><span>OPEN →</span></span>
-        </a>'''
+        <div class="pick" data-pick="{name}">
+          <a class="pick-main" href="{pages_url}" rel="noopener">
+            <span class="pick-head"><span class="pick-stamp">{stamp}</span><time>{esc(pick["day"])}</time></span>
+            <h3>{name}</h3>
+            <span class="pick-desc">{desc}</span>
+          </a>
+          <div class="pick-foot">
+            <span class="pick-reason">{esc(pick_reason(pick))}</span>
+            <span class="pick-actions">
+              <a class="pick-action pick-open" href="{pages_url}" rel="noopener">OPEN →</a>{diagram}
+            </span>
+          </div>
+        </div>'''
+
+
+def render_site_diagram(show_diagram=True):
+    if not show_diagram:
+        return ""
+    url = f"{GITDIAGRAM_BASE}/{OWNER}/{SITE_REPO}"
+    return f'''
+      <p class="sidecar-site"><a data-site-diagram="1" href="{esc(url)}"
+        target="_blank" rel="noopener noreferrer"
+        title="GitDiagram でこのサイトの構成図を開く（新しいタブ）">このサイトの構成図 ↗</a></p>'''
 
 
 def render_ticker(ok_items, ng_count):
@@ -297,8 +341,9 @@ def render_ticker(ok_items, ng_count):
         </div>'''
 
 
-def render_sidecar(pick, ok_items, private_count, ng_count, generated_at):
+def render_sidecar(pick, ok_items, private_count, ng_count, generated_at, show_diagram=True):
     ticker = render_ticker(ok_items, ng_count)
+    site_diagram = render_site_diagram(show_diagram)
     return f'''
   <details class="sidecar" open>
     <summary>
@@ -307,13 +352,13 @@ def render_sidecar(pick, ok_items, private_count, ng_count, generated_at):
       <span class="sidecar-toggle" aria-hidden="true"></span>
     </summary>
     <div class="sidecar-body">
-      <p class="sidecar-note">公開中の Pages を毎日自動巡回しています。更新日は最終 push 日時です。</p>{render_pick(pick)}{ticker}
+      <p class="sidecar-note">公開中の Pages を毎日自動巡回しています。更新日は最終 push 日時です。</p>{render_pick(pick, show_diagram)}{ticker}
       <dl class="sidecar-stats">
         <div><dt>PUBLIC</dt><dd>{len(ok_items)}</dd></div>
         <div><dt>PRIVATE</dt><dd>{private_count}</dd></div>
         <div><dt>NG</dt><dd>{ng_count}</dd></div>
       </dl>
-      <p class="sidecar-time">生成 {esc(generated_at)}</p>
+      <p class="sidecar-time">生成 {esc(generated_at)}</p>{site_diagram}
     </div>
   </details>
   <script>
@@ -337,11 +382,24 @@ def render_sidecar(pick, ok_items, private_count, ng_count, generated_at):
   </script>'''
 
 
-def validate_sidecar(html_out, pick):
+def validate_sidecar(html_out, pick, show_diagram=True):
     if html_out.count('class="sidecar"') != 1:
         raise RuntimeError("Generated HTML must contain exactly one sidecar")
     if pick is not None and f'data-pick="{esc(pick["item"]["name"])}"' not in html_out:
         raise RuntimeError("Daily pick is missing from generated HTML")
+    if show_diagram:
+        if 'data-site-diagram="1"' not in html_out:
+            raise RuntimeError("Site GitDiagram link is missing from generated HTML")
+        if 'target="_blank" rel="noopener noreferrer"' not in html_out:
+            raise RuntimeError("GitDiagram link must open in a new tab")
+        if pick is not None:
+            diagram_url = gitdiagram_url(pick["item"].get("repo_url"))
+            if diagram_url:
+                name = esc(pick["item"]["name"])
+                if f'data-diagram="{name}"' not in html_out:
+                    raise RuntimeError("Daily pick GitDiagram link is missing from generated HTML")
+                if f'href="{esc(diagram_url)}"' not in html_out:
+                    raise RuntimeError("Daily pick GitDiagram URL is incorrect")
 
 
 def validate_output(html_out, expected_cards):
@@ -408,10 +466,12 @@ def main():
     private_cards = "\n".join(render_private_card(r, i) for i, r in enumerate(private_items))
 
     pick = pick_of_the_day(ok_items, CONFIG)
+    show_diagram = bool((CONFIG.get("dailyPick") or {}).get("diagram", True))
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     private_broken = sum(1 for it in private_items if it["status"] in (404, -1))
     ng_count = len(broken_items) + private_broken
-    sidecar = render_sidecar(pick, ok_items, len(private_items), ng_count, generated_at)
+    sidecar = render_sidecar(pick, ok_items, len(private_items), ng_count, generated_at,
+                             show_diagram)
 
     html_out = HTML_TEMPLATE
     html_out = html_out.replace("{{COUNT}}", str(len(items)))
@@ -425,7 +485,7 @@ def main():
     html_out = html_out.replace("{{SIDECAR}}", sidecar)
 
     validate_output(html_out, len(ok_items) + len(broken_items) + len(private_items))
-    validate_sidecar(html_out, pick)
+    validate_sidecar(html_out, pick, show_diagram)
 
     out = os.path.join(REPO_ROOT, "docs", "index.html")
     write_atomic(out, html_out)
@@ -563,16 +623,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .sidecar-note { font-size: .78rem; font-weight: 700; }
   .pick { display: flex; flex-direction: column; gap: .45rem; margin: 1rem 0;
           padding: .9rem; border: 3px solid #000; background: #ffe14d; box-shadow: 5px 5px 0 #000;
-          text-decoration: none; color: #000; transition: transform .1s ease, box-shadow .1s ease; }
+          color: #000; transition: transform .1s ease, box-shadow .1s ease; }
   .pick:hover { transform: translate(-3px, -3px); box-shadow: 8px 8px 0 #000; }
   .pick:active { transform: translate(1px, 3px); box-shadow: 2px 2px 0 #000; }
+  .pick-main { display: flex; flex-direction: column; gap: .45rem;
+               color: #000; text-decoration: none; }
+  .pick-main:focus-visible { outline: 3px solid #ff2d75; outline-offset: 3px; }
   .pick-head { display: flex; justify-content: space-between; align-items: center;
                gap: .5rem; font-size: .68rem; font-weight: 900; }
   .pick-stamp { background: #000; color: #fff; padding: .15rem .45rem; }
   .pick h3 { font-size: 1.25rem; font-weight: 900; line-height: 1.25; word-break: break-all; }
   .pick-desc { font-size: .85rem; font-weight: 700; overflow-wrap: anywhere; }
-  .pick-foot { display: flex; justify-content: space-between; gap: .5rem;
-               border-top: 3px dashed #000; padding-top: .5rem; font-size: .72rem; font-weight: 900; }
+  .pick-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+               gap: .5rem; border-top: 3px dashed #000; padding-top: .5rem;
+               font-size: .72rem; font-weight: 900; }
+  .pick-reason { flex: 1 1 auto; }
+  .pick-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; }
+  .pick-action { display: inline-block; padding: .22rem .45rem; border: 2px solid #000;
+                 font-size: .68rem; font-weight: 900; line-height: 1.3; text-decoration: none;
+                 white-space: nowrap; transition: transform .1s ease, box-shadow .1s ease; }
+  .pick-open { background: #000; color: #fff; }
+  .pick-diagram { background: #9ef01a; color: #000; }
+  .pick-action:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 #000; }
+  .pick-action:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
   .ticker { overflow: hidden; border: 3px solid #000; background: #000; color: #fff;
             font-size: .78rem; font-weight: 900; }
   .ticker-track { display: flex; width: max-content; animation: ticker-scroll 26s linear infinite; }
@@ -587,6 +660,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .sidecar-stats dt { font-size: .62rem; font-weight: 900; letter-spacing: .08em; }
   .sidecar-stats dd { font-size: 1.25rem; font-weight: 900; line-height: 1.2; }
   .sidecar-time { margin-top: .8rem; text-align: right; font-size: .68rem; font-weight: 900; }
+  .sidecar-site { margin-top: .8rem; }
+  .sidecar-site a { display: block; padding: .5rem .4rem; border: 3px solid #000; background: #7ec8e3;
+                    box-shadow: 4px 4px 0 #000; color: #000; font-size: .75rem; font-weight: 900;
+                    text-align: center; text-decoration: none;
+                    transition: transform .1s ease, box-shadow .1s ease; }
+  .sidecar-site a:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+  .sidecar-site a:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
   @keyframes led-pulse { 50% { background: #ff2d75; } }
   @keyframes ticker-scroll { to { transform: translateX(-50%); } }
   @media (max-width: 1120px) {
@@ -597,7 +677,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   @media (prefers-reduced-motion: reduce) {
     .led { animation: none; }
     .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
-    .pick { transition: none; }
+    .pick, .pick-action, .sidecar-site a { transition: none; }
   }
 </style>
 </head>

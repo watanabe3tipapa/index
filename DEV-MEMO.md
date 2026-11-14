@@ -224,3 +224,28 @@ docs/index.md                     # 廃止（削除）
   - 抽選ロジックの単体確認: 同一日で再現、`curated` 優先、`enabled: false` で非表示、説明なし候補の除外。
   - Chrome ヘッドレスで 1440px（右サイドバー）と 500px（上部・初期閉）のスクリーンショットを確認。
   - 当日のおすすめは `svg-generator`（30% 側の「静かな名作」枠）。
+
+### SIDECAR に GitDiagram 導線を追加（2026-11-14）
+- ユーザー要望: 「URLの書き換え（github → gitdiagram）で生成されるページへの入口ボタンを SIDECAR に追加」
+  「別窓で開く」。
+- `generate_index.py`:
+  - `gitdiagram_url()` を追加。`github.com`（`www.github.com` 含む）の公開リポジトリ URL だけを
+    `https://gitdiagram.com/<owner>/<repo>` に変換する。ホスト以外の文字列は置換しない。
+  - おすすめカードを `<a>` から `<div>` に変更し、本文リンク＋`OPEN →`＋`構成図 ↗` の3リンク構成に。
+    カード全体をリンクにしたまま別リンクを入れると `<a>` の入れ子になるため。
+  - SIDECAR 下部に「このサイトの構成図 ↗」を常設（`https://gitdiagram.com/<owner>/<siteRepo>`）。
+  - GitDiagram の2リンクは `target="_blank" rel="noopener noreferrer"` で新しいタブに開く。
+  - `validate_sidecar` に、サイト用リンクの存在・GitDiagram URL・`target="_blank"` の検証を追加。
+- 設定: `dailyPick.diagram`（既定 `true`。`false` で GitDiagram リンクを非表示）と
+  トップレベルの `siteRepo`（既定 `index`）を追加。README に両項目を追記。
+- CSS: `OPEN` は黒、`構成図` は緑、常設リンクは水色の neo-brutalism ボタン。
+  狭い幅では `flex-wrap` で折り返し、フォーカスリングも追加。
+- 検証:
+  - 再生成成功: Public 93（83 ok / 10 404）＋ Private 33 = **126 カード**（従来と同数）。
+  - GitDiagram の2 URL（おすすめ・サイト）が **HTTP 200**。
+  - `<a>` の入れ子 0、タグ不整合 0、`target="_blank"` 2箇所、プレースホルダ 0。
+  - 390 / 640 / 641 / 900 / 1120 / 1121 / 1440px で横スクロールなし。
+  - 1440px のスクリーンショットで、2ボタンと常設リンクの収まりを確認。
+- タイポチェック:
+  - `uvx codespell` を追跡対象の全テキストファイルに実行し、指摘 0 件。
+  - 新規文言の「GitDiagram」「SIDECAR」「構成図」「新しいタブ」の表記を目視確認し、揺れなし。
