@@ -190,3 +190,13 @@ docs/index.md                     # 廃止（削除）
   Public カードの「更新日」と並び順を **`pushed_at`（最終 push 日時）** 基準に変更。
   - `updated_at != pushed_at` は全93件中8件のみ（今回の description 編集7件＋issues-astro-cms）。
 - 再生成後: Public 93（83 ok / 10 404）＋ Private 33、表示上の空白異常 0 件。
+
+### 手動再生成・検証（2026-11-14）
+- `GITHUB_TOKEN` を付けてローカル再生成し、`docs/index.html` を検証。
+  - 結果: Public 93（83 ok / 10 404）＋ Private 33 = **126 カード**（前回と同数）。
+  - 検証: プレースホルダ 0 / リンク重複 0 / `pushed_at` 降順 / Now:404 は 20 件すべて実 404（接続エラー 0）。
+- ローカル生成物は、同日 07:15 UTC の CI 生成物と**タイムスタンプ行以外は完全一致**。
+  そのため `docs/index.html` は CI 版（5bea9c2）をそのまま採用し、差分のコミットは行っていない。
+- 前回確認時（2026-11-12）からの実質的な変更は、11/12 以降に push された 6 リポジトリの更新日と並び順のみ。
+  - 対象: editorial-collector / watanabe3tipapa / frameworks-now / standard-libraries-now / goose-sandbox / 3d-books。
+  - 追加・消失リポジトリなし。
