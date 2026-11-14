@@ -25,6 +25,10 @@
           transition: transform .1s ease, box-shadow .1s ease; }
   .card:hover { transform: translate(-4px, -4px); box-shadow: 0 0 0 4px #000; }
   .card:active { transform: translate(2px, 6px); box-shadow: 2px 2px 0 #000; }
+  .card:focus-visible, .card:focus-within { outline: 4px solid #000; outline-offset: 2px; }
+  .card-main { display: flex; flex-direction: column; flex: 1;
+               color: #000; text-decoration: none; }
+  .card-main::after { content: ""; position: absolute; inset: 0; }
   .card .tag { position: absolute; top: -0.9rem; right: 1rem; background: #000; color: #fff;
                font-size: .8rem; font-weight: 900; padding: .15rem .6rem; border: 2px solid #fff;
                transform: rotate(3deg); }
@@ -33,8 +37,15 @@
                 overflow-wrap: anywhere; }
   .card .meta { border-top: 3px dashed #000; padding-top: .8rem; margin-top: .5rem; }
   .card .repo { font-size: .75rem; font-weight: 900; overflow-wrap: anywhere; }
-  .card .date { align-self: flex-end; margin-top: .5rem; font-size: .85rem; font-weight: 900;
+  .card .date { margin-left: auto; font-size: .85rem; font-weight: 900;
                 background: #fff; border: 2px solid #000; padding: .1rem .4rem; }
+  .card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .5rem; }
+  .card-tools { display: flex; flex-wrap: wrap; gap: .3rem; position: relative; z-index: 2; }
+  .card-tool { display: inline-block; padding: .16rem .38rem; border: 2px solid #000;
+               font-size: .62rem; font-weight: 900; line-height: 1.3; text-decoration: none;
+               white-space: nowrap; transition: transform .1s ease, box-shadow .1s ease; }
+  .card-tool:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 #000; }
+  .card-tool:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
   .section { margin-top: 3rem; border-top: 4px solid #000; padding-top: 1.5rem; }
   .section.first { margin-top: 0; border-top: none; padding-top: 0; }
   .section .title { display: inline-block; background: #000; color: #fff; font-weight: 900;
@@ -88,14 +99,16 @@
                gap: .5rem; border-top: 3px dashed #000; padding-top: .5rem;
                font-size: .72rem; font-weight: 900; }
   .pick-reason { flex: 1 1 auto; }
-  .pick-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; }
-  .pick-action { display: inline-block; padding: .22rem .45rem; border: 2px solid #000;
-                 font-size: .68rem; font-weight: 900; line-height: 1.3; text-decoration: none;
-                 white-space: nowrap; transition: transform .1s ease, box-shadow .1s ease; }
-  .pick-open { background: #000; color: #fff; }
-  .pick-diagram { background: #9ef01a; color: #000; }
+  .pick-actions { display: flex; flex-wrap: wrap; gap: .35rem; width: 100%; }
+  .pick-action { flex: 1 1 auto; display: inline-block; padding: .22rem .45rem; border: 2px solid #000;
+                 font-size: .68rem; font-weight: 900; line-height: 1.3; text-align: center;
+                 text-decoration: none; white-space: nowrap;
+                 transition: transform .1s ease, box-shadow .1s ease; }
+  .pick-open { flex: 1 1 100%; background: #000; color: #fff; }
   .pick-action:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 #000; }
   .pick-action:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
+  .tool-diagram { background: #9ef01a; color: #000; }
+  .tool-gitingest { background: #7ec8e3; color: #000; }
   .ticker { overflow: hidden; border: 3px solid #000; background: #000; color: #fff;
             font-size: .78rem; font-weight: 900; }
   .ticker-track { display: flex; width: max-content; animation: ticker-scroll 26s linear infinite; }
@@ -110,13 +123,15 @@
   .sidecar-stats dt { font-size: .62rem; font-weight: 900; letter-spacing: .08em; }
   .sidecar-stats dd { font-size: 1.25rem; font-weight: 900; line-height: 1.2; }
   .sidecar-time { margin-top: .8rem; text-align: right; font-size: .68rem; font-weight: 900; }
-  .sidecar-site { margin-top: .8rem; }
-  .sidecar-site a { display: block; padding: .5rem .4rem; border: 3px solid #000; background: #7ec8e3;
-                    box-shadow: 4px 4px 0 #000; color: #000; font-size: .75rem; font-weight: 900;
-                    text-align: center; text-decoration: none;
-                    transition: transform .1s ease, box-shadow .1s ease; }
-  .sidecar-site a:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
-  .sidecar-site a:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
+  .sidecar-tools { margin-top: .8rem; }
+  .sidecar-tools-title { display: block; margin-bottom: .35rem; font-size: .62rem;
+                         font-weight: 900; letter-spacing: .08em; }
+  .sidecar-tools-links { display: grid; grid-template-columns: 1fr; gap: .35rem; }
+  .site-tool { display: block; padding: .5rem .3rem; border: 3px solid #000; box-shadow: 4px 4px 0 #000;
+               color: #000; font-size: .72rem; font-weight: 900; text-align: center;
+               text-decoration: none; transition: transform .1s ease, box-shadow .1s ease; }
+  .site-tool:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+  .site-tool:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
   @keyframes led-pulse { 50% { background: #ff2d75; } }
   @keyframes ticker-scroll { to { transform: translateX(-50%); } }
   @media (max-width: 1120px) {
@@ -127,7 +142,7 @@
   @media (prefers-reduced-motion: reduce) {
     .led { animation: none; }
     .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
-    .pick, .pick-action, .sidecar-site a { transition: none; }
+    .pick, .pick-action, .card-tool, .site-tool { transition: none; }
   }
 </style>
 </head>
@@ -152,10 +167,8 @@
             <span class="pick-reason">静かな名作</span>
             <span class="pick-actions">
               <a class="pick-action pick-open" href="https://watanabe3tipapa.github.io/svg-generator/" rel="noopener">OPEN →</a>
-              <a class="pick-action pick-diagram" data-diagram="svg-generator" href="https://gitdiagram.com/watanabe3tipapa/svg-generator"
-                 target="_blank" rel="noopener noreferrer"
-                 aria-label="svg-generator の構成図を GitDiagram で開く（新しいタブ）"
-                 title="GitDiagram で構成図を開く（新しいタブ・初回は生成に時間がかかります）">構成図 ↗</a>
+              <a class="pick-action tool-diagram" data-pick-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/svg-generator" target="_blank" rel="noopener noreferrer" aria-label="svg-generator の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="pick-action tool-gitingest" data-pick-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/svg-generator" target="_blank" rel="noopener noreferrer" aria-label="svg-generator の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a>
             </span>
           </div>
         </div>
@@ -167,10 +180,12 @@
         <div><dt>PRIVATE</dt><dd>33</dd></div>
         <div><dt>NG</dt><dd>20</dd></div>
       </dl>
-      <p class="sidecar-time">生成 2026-11-14 12:38 UTC</p>
-      <p class="sidecar-site"><a data-site-diagram="1" href="https://gitdiagram.com/watanabe3tipapa/index"
-        target="_blank" rel="noopener noreferrer"
-        title="GitDiagram でこのサイトの構成図を開く（新しいタブ）">このサイトの構成図 ↗</a></p>
+      <p class="sidecar-time">生成 2026-11-14 13:03 UTC</p>
+      <div class="sidecar-tools">
+        <span class="sidecar-tools-title">THIS SITE</span>
+        <div class="sidecar-tools-links"><a class="site-tool tool-diagram" data-site-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/index" target="_blank" rel="noopener noreferrer" aria-label="このサイトの構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">このサイトの構成図 ↗</a>
+<a class="site-tool tool-gitingest" data-site-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/index" target="_blank" rel="noopener noreferrer" aria-label="このサイトの Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">このサイトの Digest ↗</a></div>
+      </div>
     </div>
   </details>
   <script>
@@ -197,841 +212,924 @@
     <span class="badge">MY STUFF ON THE WEB</span>
     <h1>GitHub - INDEX</h1>
     <p>公開リポジトリ <b>93</b> 件 と、Private リポジトリから派生した LP <b>33</b> 件。</p>
-    <p><small>自動生成: 2026-11-14 12:38 UTC</small></p>
+    <p><small>自動生成: 2026-11-14 13:03 UTC</small></p>
   </header>
   <div class="section first" id="public-repos">
     <span class="title">Public リポジトリ <small>(83)</small></span>
     <div class="grid">
 
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/editorial-collector/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>editorial-collector</h3>
-        <p class="desc">社説コレクター</p>
-        <p class="meta">
-          <span class="repo">editorial-collector</span>
-        </p>
-        <p class="date">更新 2026-11-14</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/watanabe3tipapa/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>watanabe3tipapa</h3>
-        <p class="desc">Personal portal &amp; GitHub profile for Toru Watanabe (Bricoleur &amp; Toolsmith) with neo-brutalism stats.</p>
-        <p class="meta">
-          <span class="repo">watanabe3tipapa</span>
-        </p>
-        <p class="date">更新 2026-11-14</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/frameworks-now/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>frameworks-now</h3>
-        <p class="desc">フレームワークの確認サイト</p>
-        <p class="meta">
-          <span class="repo">frameworks-now</span>
-        </p>
-        <p class="date">更新 2026-11-14</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/standard-libraries-now/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>standard-libraries-now</h3>
-        <p class="desc">標準ライブラリの確認サイト</p>
-        <p class="meta">
-          <span class="repo">standard-libraries-now</span>
-        </p>
-        <p class="date">更新 2026-11-14</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/goose-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>goose-sandbox</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">goose-sandbox</span>
-        </p>
-        <p class="date">更新 2026-11-14</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/3d-books/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>3d-books</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">3d-books</span>
-        </p>
-        <p class="date">更新 2026-11-12</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/GoogleColaboratory/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>GoogleColaboratory</h3>
-        <p class="desc">Google Colaboratory (Archives)</p>
-        <p class="meta">
-          <span class="repo">GoogleColaboratory</span>
-        </p>
-        <p class="date">更新 2026-11-11</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/ca-checker/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>ca-checker</h3>
-        <p class="desc">OS の信頼ストアにある X.509 証明書の有効期限・署名・信頼チェーン・失効（CRL / OCSP）を検証する GPUI 製デスクトップダッシュボード兼 CLI。</p>
-        <p class="meta">
-          <span class="repo">ca-checker</span>
-        </p>
-        <p class="date">更新 2026-10-30</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/issues-astro-cms/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>issues-astro-cms</h3>
-        <p class="desc">CMS（教材）</p>
-        <p class="meta">
-          <span class="repo">issues-astro-cms</span>
-        </p>
-        <p class="date">更新 2026-10-24</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/okf-seedling/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>okf-seedling</h3>
-        <p class="desc">OKF（Open Knowledge Format）v0.2 準拠の知識バンドルを Quarto で作るテンプレート。.qmd を書くだけで人間用 HTML と機械用 OKF バンドルを並行生成し、検証・デプロイまで自動化。エージェントにも人間にも読める知識基盤を育てる。</p>
-        <p class="meta">
-          <span class="repo">okf-seedling</span>
-        </p>
-        <p class="date">更新 2026-10-20</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/sarashina-mercury/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>sarashina-mercury</h3>
-        <p class="desc">非公式 Sarashina API クライアント (PWA)｜チャット・翻訳・RAG・Guard を API キーひとつで。Unofficial Sarashina API client built with Vite + React.</p>
-        <p class="meta">
-          <span class="repo">sarashina-mercury</span>
-        </p>
-        <p class="date">更新 2026-10-14</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/openshell-plus/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>openshell-plus</h3>
-        <p class="desc">FastAPI 製ダッシュボードで NVIDIA OpenShell の sandbox を作成・監視・実行。WebSocket / SSE 対応、demo フォールバック、Docker / Cloudflare Tunnel / Vercel / Colab へデプロイ可能。</p>
-        <p class="meta">
-          <span class="repo">openshell-plus</span>
-        </p>
-        <p class="date">更新 2026-10-11</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/phobos/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>phobos</h3>
-        <p class="desc">確率つきの意思決定モデル laya の紹介LPとブラウザ Playground。3ページ構成（紹介LP / Playground / UI/UXガイド）、3カラムの試遊、wtermコンソール、confidence gating。素の HTML/CSS/ES Modules 構成で GitHub Pages へ自動公開。</p>
-        <p class="meta">
-          <span class="repo">phobos</span>
-        </p>
-        <p class="date">更新 2026-10-10</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/portolan-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>portolan-sandbox</h3>
-        <p class="desc">Portolan（AIが直接読める空間インフラ）のLP・チュートリアル・特集を公開する実験リポジトリ</p>
-        <p class="meta">
-          <span class="repo">portolan-sandbox</span>
-        </p>
-        <p class="date">更新 2026-10-04</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/astro-output/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>astro-output</h3>
-        <p class="desc">Let’s leverage the benefits of Markdown in Astro（AstroでMarkdownの利点を活用しましょう）</p>
-        <p class="meta">
-          <span class="repo">astro-output</span>
-        </p>
-        <p class="date">更新 2026-09-25</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/quarto-plus/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>quarto-plus</h3>
-        <p class="desc">Quarto 強化版</p>
-        <p class="meta">
-          <span class="repo">quarto-plus</span>
-        </p>
-        <p class="date">更新 2026-09-23</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/var-watcher/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>var-watcher</h3>
-        <p class="desc">macOS /var リアルタイム監視ツール（教材）。fswatch/watchman/entr/log stream を一元管理。重複排除・SQLite永続化と時系列検索・ルールベースアラート対応。AI Agent の足あと追跡に。</p>
-        <p class="meta">
-          <span class="repo">var-watcher</span>
-        </p>
-        <p class="date">更新 2026-09-23</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/moji-code/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>moji-code</h3>
-        <p class="desc">文字コード超人（試作品）</p>
-        <p class="meta">
-          <span class="repo">moji-code</span>
-        </p>
-        <p class="date">更新 2026-09-19</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/issues-tanstack-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>issues-tanstack-sandbox</h3>
-        <p class="desc">TanStack Start の実践サンドボックス。SPA モード + プリレンダで GitHub Pages へ公開する LP と、GitHub Issues を CMS 化する構成の 2 本立て。</p>
-        <p class="meta">
-          <span class="repo">issues-tanstack-sandbox</span>
-        </p>
-        <p class="date">更新 2026-09-19</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/gg/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>gg</h3>
-        <p class="desc">URLからサイトのリンク構造を採取し、Three.js で 3D グラフ化する汎用ツール。Cloudflare Worker + Durable Objects のサーバーレスクローラと Astro ベースの LP を組み合わせ、サイト構造を手軽に可視化できます。</p>
-        <p class="meta">
-          <span class="repo">gg</span>
-        </p>
-        <p class="date">更新 2026-09-15</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/font-lover/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>font-lover</h3>
-        <p class="desc">FONT-LOVER — Web上で実際に使われているフォントを検出・蓄積・展示するフォント図鑑（実験リポジトリ）</p>
-        <p class="meta">
-          <span class="repo">font-lover</span>
-        </p>
-        <p class="date">更新 2026-09-14</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/fadd9/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>fadd9</h3>
-        <p class="desc">調整中</p>
-        <p class="meta">
-          <span class="repo">fadd9</span>
-        </p>
-        <p class="date">更新 2026-09-12</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/docgist-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>docgist-sandbox</h3>
-        <p class="desc">.adoc のすゝめ</p>
-        <p class="meta">
-          <span class="repo">docgist-sandbox</span>
-        </p>
-        <p class="date">更新 2026-09-11</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/storybook-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>storybook-sandbox</h3>
-        <p class="desc">storybook-sandbox</p>
-        <p class="meta">
-          <span class="repo">storybook-sandbox</span>
-        </p>
-        <p class="date">更新 2026-09-09</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/app-icon-maker-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>app-icon-maker-pe</h3>
-        <p class="desc">MoBrowser App Icon Maker - UI</p>
-        <p class="meta">
-          <span class="repo">app-icon-maker-pe</span>
-        </p>
-        <p class="date">更新 2026-09-06</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/policy-insight-hub/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>policy-insight-hub</h3>
-        <p class="desc">EBPM。政策データを、たゆまず集め、構造化し、共有可能にする。</p>
-        <p class="meta">
-          <span class="repo">policy-insight-hub</span>
-        </p>
-        <p class="date">更新 2026-09-06</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/simple-message-board/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>simple-message-board</h3>
-        <p class="desc">災害伝言板 - デモ・プロトタイプ・学習教材としてお使いください</p>
-        <p class="meta">
-          <span class="repo">simple-message-board</span>
-        </p>
-        <p class="date">更新 2026-09-02</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/style/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>style</h3>
-        <p class="desc">テスト運用中</p>
-        <p class="meta">
-          <span class="repo">style</span>
-        </p>
-        <p class="date">更新 2026-08-31</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/html/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>html</h3>
-        <p class="desc">MEMO - Pagefind Search</p>
-        <p class="meta">
-          <span class="repo">html</span>
-        </p>
-        <p class="date">更新 2026-08-28</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/atlas/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>atlas</h3>
-        <p class="desc">Watanabe3ti Atlas — Curiosity, indexed.</p>
-        <p class="meta">
-          <span class="repo">atlas</span>
-        </p>
-        <p class="date">更新 2026-08-24</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/cfos-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>cfos-sandbox</h3>
-        <p class="desc">Cloudflare OS 運用ノート</p>
-        <p class="meta">
-          <span class="repo">cfos-sandbox</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/next/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>next</h3>
-        <p class="desc">next.watanabe3ti.com</p>
-        <p class="meta">
-          <span class="repo">next</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/gtfs-jp-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>gtfs-jp-sandbox</h3>
-        <p class="desc">GTFS-JPを使ってみよう（教材）</p>
-        <p class="meta">
-          <span class="repo">gtfs-jp-sandbox</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/daily-news-digest/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>daily-news-digest</h3>
-        <p class="desc">ワークショップ用 NHK NEWS - Automated daily news collection and publication</p>
-        <p class="meta">
-          <span class="repo">daily-news-digest</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/pdf-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>pdf-sandbox</h3>
-        <p class="desc">PDF-Viewer （ワークショップ用）</p>
-        <p class="meta">
-          <span class="repo">pdf-sandbox</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/pwa-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>pwa-pe</h3>
-        <p class="desc">Testing Environment</p>
-        <p class="meta">
-          <span class="repo">pwa-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/zakki6/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>zakki6</h3>
-        <p class="desc">雑記録</p>
-        <p class="meta">
-          <span class="repo">zakki6</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/sphinx-ce/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>sphinx-ce</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">sphinx-ce</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/sphinx-std/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>sphinx-std</h3>
-        <p class="desc">Sphinx 基本ツールのテスト用リポジトリ</p>
-        <p class="meta">
-          <span class="repo">sphinx-std</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/docgist-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>docgist-pe</h3>
-        <p class="desc">Asciidoc - my Laboratory</p>
-        <p class="meta">
-          <span class="repo">docgist-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/jupyterbook-ce/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>jupyterbook-ce</h3>
-        <p class="desc">Created for feature comparison with Git Book</p>
-        <p class="meta">
-          <span class="repo">jupyterbook-ce</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/tui-md-viewer/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>tui-md-viewer</h3>
-        <p class="desc">Textualを使用したターミナルベースのMarkdownビューアー</p>
-        <p class="meta">
-          <span class="repo">tui-md-viewer</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/slideshow-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>slideshow-pe</h3>
-        <p class="desc">Let&#x27;s try running a slideshow on GitHub Pages（GitHub Pagesでスライドショーを実行してみましょう）</p>
-        <p class="meta">
-          <span class="repo">slideshow-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/screen-capture-api/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>screen-capture-api</h3>
-        <p class="desc">画面キャプチャ・録画ツール（WebM）</p>
-        <p class="meta">
-          <span class="repo">screen-capture-api</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/library-management-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>library-management-pe</h3>
-        <p class="desc">TEST REPOSITORY（PUBLIC）</p>
-        <p class="meta">
-          <span class="repo">library-management-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/lexical-html/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>lexical-html</h3>
-        <p class="desc">Markdown Editor by Lexical</p>
-        <p class="meta">
-          <span class="repo">lexical-html</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/tiptap-editor-ce/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>tiptap-editor-ce</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">tiptap-editor-ce</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/blueprint/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>blueprint</h3>
-        <p class="desc">テスト中</p>
-        <p class="meta">
-          <span class="repo">blueprint</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/ollama-turbo-quant-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>ollama-turbo-quant-pe</h3>
-        <p class="desc">ローカルLLM支援ツール</p>
-        <p class="meta">
-          <span class="repo">ollama-turbo-quant-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/obsidian-quartz-ce/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>obsidian-quartz-ce</h3>
-        <p class="desc">GitHub Pagesで Obsidianノートブック を公開するためのテンプレート（公開URL：RSS配信）</p>
-        <p class="meta">
-          <span class="repo">obsidian-quartz-ce</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/notion-webui/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>notion-webui</h3>
-        <p class="desc">試作品（検証中）</p>
-        <p class="meta">
-          <span class="repo">notion-webui</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/links/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>links</h3>
-        <p class="desc">統合リンクサイト</p>
-        <p class="meta">
-          <span class="repo">links</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/lan-message-board/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>lan-message-board</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">lan-message-board</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/cursor-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>cursor-sandbox</h3>
-        <p class="desc">（ワークショップ用）自由帳</p>
-        <p class="meta">
-          <span class="repo">cursor-sandbox</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="http://watanabe3ti.com" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>watanabe3tipapa.github.io</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">watanabe3tipapa.github.io</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/template-astro-vp/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>template-astro-vp</h3>
-        <p class="desc">テスト中</p>
-        <p class="meta">
-          <span class="repo">template-astro-vp</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/pelican-white-paper/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>pelican-white-paper</h3>
-        <p class="desc">🖋️ Pelican を使ってみよう</p>
-        <p class="meta">
-          <span class="repo">pelican-white-paper</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/omikuji/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>omikuji</h3>
-        <p class="desc">おみくじ</p>
-        <p class="meta">
-          <span class="repo">omikuji</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/nb-public/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>nb-public</h3>
-        <p class="desc">📓 - public -</p>
-        <p class="meta">
-          <span class="repo">nb-public</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/quarto-dsh/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>quarto-dsh</h3>
-        <p class="desc">Quarto 編集・レンダリング強化ハーネス。正確な知識（quarto-pe）× エージェント基盤（DeepSeek Harness）</p>
-        <p class="meta">
-          <span class="repo">quarto-dsh</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/ir-qubit/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>ir-qubit</h3>
-        <p class="desc">Qubit - 自由研究</p>
-        <p class="meta">
-          <span class="repo">ir-qubit</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/hatch-marimo-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>hatch-marimo-sandbox</h3>
-        <p class="desc">Hatch-managed marimo notebook sandbox with MCP/A2A/Ollama integration</p>
-        <p class="meta">
-          <span class="repo">hatch-marimo-sandbox</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/tomorrow-transceiver-socket/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>tomorrow-transceiver-socket</h3>
-        <p class="desc">副教材</p>
-        <p class="meta">
-          <span class="repo">tomorrow-transceiver-socket</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/issues-quarto-cms/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>issues-quarto-cms</h3>
-        <p class="desc">CMS（教材）</p>
-        <p class="meta">
-          <span class="repo">issues-quarto-cms</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/bookmark-manager-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>bookmark-manager-pe</h3>
-        <p class="desc">調整中</p>
-        <p class="meta">
-          <span class="repo">bookmark-manager-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/graph-tutorial/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>graph-tutorial</h3>
-        <p class="desc">EBPM 関連 GitHub リソースを自律収集・可視化するエビデンス・パイプライン</p>
-        <p class="meta">
-          <span class="repo">graph-tutorial</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/txt-crypter-neo/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>txt-crypter-neo</h3>
-        <p class="desc">TXT-Crypter Neo - Browser-only text encryption tool</p>
-        <p class="meta">
-          <span class="repo">txt-crypter-neo</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/blume-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>blume-pe</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">blume-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/svg-generator/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>svg-generator</h3>
-        <p class="desc">Sandbox（SVG_file）</p>
-        <p class="meta">
-          <span class="repo">svg-generator</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/ludique/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>ludique</h3>
-        <p class="desc">主サイトまでの寄り道です</p>
-        <p class="meta">
-          <span class="repo">ludique</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/memory-chamber/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>memory-chamber</h3>
-        <p class="desc">LP</p>
-        <p class="meta">
-          <span class="repo">memory-chamber</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/album-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>album-pe</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">album-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/chronology-toolkit/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>chronology-toolkit</h3>
-        <p class="desc">防災クロノロジー・ツールキット</p>
-        <p class="meta">
-          <span class="repo">chronology-toolkit</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/dumpdumpdump/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>dumpdumpdump</h3>
-        <p class="desc">Memory Dump Visualizer - macOS</p>
-        <p class="meta">
-          <span class="repo">dumpdumpdump</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/nb-quarto-blog/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>nb-quarto-blog</h3>
-        <p class="desc">nb - quarto &gt;&gt; Blog - Demo</p>
-        <p class="meta">
-          <span class="repo">nb-quarto-blog</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/quarto-pe/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>quarto-pe</h3>
-        <p class="desc">Quarto and Q markdown notations recommended</p>
-        <p class="meta">
-          <span class="repo">quarto-pe</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/marimo-sandbox/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>marimo-sandbox</h3>
-        <p class="desc">📝 Marimo を使ってみよう</p>
-        <p class="meta">
-          <span class="repo">marimo-sandbox</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/licensing-now/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>licensing-now</h3>
-        <p class="desc">（説明なし）</p>
-        <p class="meta">
-          <span class="repo">licensing-now</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#7ec8e3" href="https://watanabe3tipapa.github.io/cfos-showcase/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>cfos-showcase</h3>
-        <p class="desc">Cloudflare OS Gadget Showcase</p>
-        <p class="meta">
-          <span class="repo">cfos-showcase</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffadad" href="https://watanabe3tipapa.github.io/colab-manager/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>colab-manager</h3>
-        <p class="desc">Google Drive ファイル管理支援ツール (Colab + CLI) — Google Drive file management tool</p>
-        <p class="meta">
-          <span class="repo">colab-manager</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#fff" href="https://watanabe3tipapa.github.io/growi-blume-sitegen/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>growi-blume-sitegen</h3>
-        <p class="desc">検証庭</p>
-        <p class="meta">
-          <span class="repo">growi-blume-sitegen</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#ffe14d" href="https://watanabe3tipapa.github.io/4eq-2025-12-08/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>4eq-2025-12-08</h3>
-        <p class="desc">「北海道・三陸沖後発地震注意情報」への適宜対応</p>
-        <p class="meta">
-          <span class="repo">4eq-2025-12-08</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
-
-      <a class="card" style="background:#9ef01a" href="https://watanabe3tipapa.github.io/readme-governance-site/" rel="noopener">
-        <span class="tag">UPDATE-STAMP</span>
-        <h3>readme-governance-site</h3>
-        <p class="desc">Landing page for readme-governance-pe: a README quality gate built on GitHub Actions</p>
-        <p class="meta">
-          <span class="repo">readme-governance-site</span>
-        </p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/editorial-collector/" rel="noopener">
+          <h3>editorial-collector</h3>
+          <p class="desc">社説コレクター</p>
+        </a>
+        <p class="meta"><span class="repo">editorial-collector</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/editorial-collector" target="_blank" rel="noopener noreferrer" aria-label="editorial-collector の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/editorial-collector" target="_blank" rel="noopener noreferrer" aria-label="editorial-collector の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-11-14</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/watanabe3tipapa/" rel="noopener">
+          <h3>watanabe3tipapa</h3>
+          <p class="desc">Personal portal &amp; GitHub profile for Toru Watanabe (Bricoleur &amp; Toolsmith) with neo-brutalism stats.</p>
+        </a>
+        <p class="meta"><span class="repo">watanabe3tipapa</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/watanabe3tipapa" target="_blank" rel="noopener noreferrer" aria-label="watanabe3tipapa の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/watanabe3tipapa" target="_blank" rel="noopener noreferrer" aria-label="watanabe3tipapa の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-11-14</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/frameworks-now/" rel="noopener">
+          <h3>frameworks-now</h3>
+          <p class="desc">フレームワークの確認サイト</p>
+        </a>
+        <p class="meta"><span class="repo">frameworks-now</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/frameworks-now" target="_blank" rel="noopener noreferrer" aria-label="frameworks-now の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/frameworks-now" target="_blank" rel="noopener noreferrer" aria-label="frameworks-now の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-11-14</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/standard-libraries-now/" rel="noopener">
+          <h3>standard-libraries-now</h3>
+          <p class="desc">標準ライブラリの確認サイト</p>
+        </a>
+        <p class="meta"><span class="repo">standard-libraries-now</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/standard-libraries-now" target="_blank" rel="noopener noreferrer" aria-label="standard-libraries-now の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/standard-libraries-now" target="_blank" rel="noopener noreferrer" aria-label="standard-libraries-now の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-11-14</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/goose-sandbox/" rel="noopener">
+          <h3>goose-sandbox</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">goose-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/goose-sandbox" target="_blank" rel="noopener noreferrer" aria-label="goose-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/goose-sandbox" target="_blank" rel="noopener noreferrer" aria-label="goose-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-11-14</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/3d-books/" rel="noopener">
+          <h3>3d-books</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">3d-books</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/3d-books" target="_blank" rel="noopener noreferrer" aria-label="3d-books の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/3d-books" target="_blank" rel="noopener noreferrer" aria-label="3d-books の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-11-12</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/GoogleColaboratory/" rel="noopener">
+          <h3>GoogleColaboratory</h3>
+          <p class="desc">Google Colaboratory (Archives)</p>
+        </a>
+        <p class="meta"><span class="repo">GoogleColaboratory</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/GoogleColaboratory" target="_blank" rel="noopener noreferrer" aria-label="GoogleColaboratory の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/GoogleColaboratory" target="_blank" rel="noopener noreferrer" aria-label="GoogleColaboratory の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-11-11</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/ca-checker/" rel="noopener">
+          <h3>ca-checker</h3>
+          <p class="desc">OS の信頼ストアにある X.509 証明書の有効期限・署名・信頼チェーン・失効（CRL / OCSP）を検証する GPUI 製デスクトップダッシュボード兼 CLI。</p>
+        </a>
+        <p class="meta"><span class="repo">ca-checker</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ca-checker" target="_blank" rel="noopener noreferrer" aria-label="ca-checker の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ca-checker" target="_blank" rel="noopener noreferrer" aria-label="ca-checker の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-10-30</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/issues-astro-cms/" rel="noopener">
+          <h3>issues-astro-cms</h3>
+          <p class="desc">CMS（教材）</p>
+        </a>
+        <p class="meta"><span class="repo">issues-astro-cms</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/issues-astro-cms" target="_blank" rel="noopener noreferrer" aria-label="issues-astro-cms の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/issues-astro-cms" target="_blank" rel="noopener noreferrer" aria-label="issues-astro-cms の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-10-24</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/okf-seedling/" rel="noopener">
+          <h3>okf-seedling</h3>
+          <p class="desc">OKF（Open Knowledge Format）v0.2 準拠の知識バンドルを Quarto で作るテンプレート。.qmd を書くだけで人間用 HTML と機械用 OKF バンドルを並行生成し、検証・デプロイまで自動化。エージェントにも人間にも読める知識基盤を育てる。</p>
+        </a>
+        <p class="meta"><span class="repo">okf-seedling</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/okf-seedling" target="_blank" rel="noopener noreferrer" aria-label="okf-seedling の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/okf-seedling" target="_blank" rel="noopener noreferrer" aria-label="okf-seedling の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-10-20</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/sarashina-mercury/" rel="noopener">
+          <h3>sarashina-mercury</h3>
+          <p class="desc">非公式 Sarashina API クライアント (PWA)｜チャット・翻訳・RAG・Guard を API キーひとつで。Unofficial Sarashina API client built with Vite + React.</p>
+        </a>
+        <p class="meta"><span class="repo">sarashina-mercury</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/sarashina-mercury" target="_blank" rel="noopener noreferrer" aria-label="sarashina-mercury の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/sarashina-mercury" target="_blank" rel="noopener noreferrer" aria-label="sarashina-mercury の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-10-14</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/openshell-plus/" rel="noopener">
+          <h3>openshell-plus</h3>
+          <p class="desc">FastAPI 製ダッシュボードで NVIDIA OpenShell の sandbox を作成・監視・実行。WebSocket / SSE 対応、demo フォールバック、Docker / Cloudflare Tunnel / Vercel / Colab へデプロイ可能。</p>
+        </a>
+        <p class="meta"><span class="repo">openshell-plus</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/openshell-plus" target="_blank" rel="noopener noreferrer" aria-label="openshell-plus の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/openshell-plus" target="_blank" rel="noopener noreferrer" aria-label="openshell-plus の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-10-11</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/phobos/" rel="noopener">
+          <h3>phobos</h3>
+          <p class="desc">確率つきの意思決定モデル laya の紹介LPとブラウザ Playground。3ページ構成（紹介LP / Playground / UI/UXガイド）、3カラムの試遊、wtermコンソール、confidence gating。素の HTML/CSS/ES Modules 構成で GitHub Pages へ自動公開。</p>
+        </a>
+        <p class="meta"><span class="repo">phobos</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/phobos" target="_blank" rel="noopener noreferrer" aria-label="phobos の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/phobos" target="_blank" rel="noopener noreferrer" aria-label="phobos の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-10-10</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/portolan-sandbox/" rel="noopener">
+          <h3>portolan-sandbox</h3>
+          <p class="desc">Portolan（AIが直接読める空間インフラ）のLP・チュートリアル・特集を公開する実験リポジトリ</p>
+        </a>
+        <p class="meta"><span class="repo">portolan-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/portolan-sandbox" target="_blank" rel="noopener noreferrer" aria-label="portolan-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/portolan-sandbox" target="_blank" rel="noopener noreferrer" aria-label="portolan-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-10-04</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/astro-output/" rel="noopener">
+          <h3>astro-output</h3>
+          <p class="desc">Let’s leverage the benefits of Markdown in Astro（AstroでMarkdownの利点を活用しましょう）</p>
+        </a>
+        <p class="meta"><span class="repo">astro-output</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/astro-output" target="_blank" rel="noopener noreferrer" aria-label="astro-output の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/astro-output" target="_blank" rel="noopener noreferrer" aria-label="astro-output の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-25</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/quarto-plus/" rel="noopener">
+          <h3>quarto-plus</h3>
+          <p class="desc">Quarto 強化版</p>
+        </a>
+        <p class="meta"><span class="repo">quarto-plus</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/quarto-plus" target="_blank" rel="noopener noreferrer" aria-label="quarto-plus の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/quarto-plus" target="_blank" rel="noopener noreferrer" aria-label="quarto-plus の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-23</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/var-watcher/" rel="noopener">
+          <h3>var-watcher</h3>
+          <p class="desc">macOS /var リアルタイム監視ツール（教材）。fswatch/watchman/entr/log stream を一元管理。重複排除・SQLite永続化と時系列検索・ルールベースアラート対応。AI Agent の足あと追跡に。</p>
+        </a>
+        <p class="meta"><span class="repo">var-watcher</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/var-watcher" target="_blank" rel="noopener noreferrer" aria-label="var-watcher の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/var-watcher" target="_blank" rel="noopener noreferrer" aria-label="var-watcher の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-23</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/moji-code/" rel="noopener">
+          <h3>moji-code</h3>
+          <p class="desc">文字コード超人（試作品）</p>
+        </a>
+        <p class="meta"><span class="repo">moji-code</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/moji-code" target="_blank" rel="noopener noreferrer" aria-label="moji-code の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/moji-code" target="_blank" rel="noopener noreferrer" aria-label="moji-code の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-19</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/issues-tanstack-sandbox/" rel="noopener">
+          <h3>issues-tanstack-sandbox</h3>
+          <p class="desc">TanStack Start の実践サンドボックス。SPA モード + プリレンダで GitHub Pages へ公開する LP と、GitHub Issues を CMS 化する構成の 2 本立て。</p>
+        </a>
+        <p class="meta"><span class="repo">issues-tanstack-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/issues-tanstack-sandbox" target="_blank" rel="noopener noreferrer" aria-label="issues-tanstack-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/issues-tanstack-sandbox" target="_blank" rel="noopener noreferrer" aria-label="issues-tanstack-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-19</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/gg/" rel="noopener">
+          <h3>gg</h3>
+          <p class="desc">URLからサイトのリンク構造を採取し、Three.js で 3D グラフ化する汎用ツール。Cloudflare Worker + Durable Objects のサーバーレスクローラと Astro ベースの LP を組み合わせ、サイト構造を手軽に可視化できます。</p>
+        </a>
+        <p class="meta"><span class="repo">gg</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/gg" target="_blank" rel="noopener noreferrer" aria-label="gg の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/gg" target="_blank" rel="noopener noreferrer" aria-label="gg の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-15</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/font-lover/" rel="noopener">
+          <h3>font-lover</h3>
+          <p class="desc">FONT-LOVER — Web上で実際に使われているフォントを検出・蓄積・展示するフォント図鑑（実験リポジトリ）</p>
+        </a>
+        <p class="meta"><span class="repo">font-lover</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/font-lover" target="_blank" rel="noopener noreferrer" aria-label="font-lover の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/font-lover" target="_blank" rel="noopener noreferrer" aria-label="font-lover の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-14</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/fadd9/" rel="noopener">
+          <h3>fadd9</h3>
+          <p class="desc">調整中</p>
+        </a>
+        <p class="meta"><span class="repo">fadd9</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/fadd9" target="_blank" rel="noopener noreferrer" aria-label="fadd9 の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/fadd9" target="_blank" rel="noopener noreferrer" aria-label="fadd9 の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-12</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/docgist-sandbox/" rel="noopener">
+          <h3>docgist-sandbox</h3>
+          <p class="desc">.adoc のすゝめ</p>
+        </a>
+        <p class="meta"><span class="repo">docgist-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/docgist-sandbox" target="_blank" rel="noopener noreferrer" aria-label="docgist-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/docgist-sandbox" target="_blank" rel="noopener noreferrer" aria-label="docgist-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-11</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/storybook-sandbox/" rel="noopener">
+          <h3>storybook-sandbox</h3>
+          <p class="desc">storybook-sandbox</p>
+        </a>
+        <p class="meta"><span class="repo">storybook-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/storybook-sandbox" target="_blank" rel="noopener noreferrer" aria-label="storybook-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/storybook-sandbox" target="_blank" rel="noopener noreferrer" aria-label="storybook-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-09</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/app-icon-maker-pe/" rel="noopener">
+          <h3>app-icon-maker-pe</h3>
+          <p class="desc">MoBrowser App Icon Maker - UI</p>
+        </a>
+        <p class="meta"><span class="repo">app-icon-maker-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/app-icon-maker-pe" target="_blank" rel="noopener noreferrer" aria-label="app-icon-maker-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/app-icon-maker-pe" target="_blank" rel="noopener noreferrer" aria-label="app-icon-maker-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-06</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/policy-insight-hub/" rel="noopener">
+          <h3>policy-insight-hub</h3>
+          <p class="desc">EBPM。政策データを、たゆまず集め、構造化し、共有可能にする。</p>
+        </a>
+        <p class="meta"><span class="repo">policy-insight-hub</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/policy-insight-hub" target="_blank" rel="noopener noreferrer" aria-label="policy-insight-hub の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/policy-insight-hub" target="_blank" rel="noopener noreferrer" aria-label="policy-insight-hub の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-06</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/simple-message-board/" rel="noopener">
+          <h3>simple-message-board</h3>
+          <p class="desc">災害伝言板 - デモ・プロトタイプ・学習教材としてお使いください</p>
+        </a>
+        <p class="meta"><span class="repo">simple-message-board</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/simple-message-board" target="_blank" rel="noopener noreferrer" aria-label="simple-message-board の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/simple-message-board" target="_blank" rel="noopener noreferrer" aria-label="simple-message-board の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-09-02</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/style/" rel="noopener">
+          <h3>style</h3>
+          <p class="desc">テスト運用中</p>
+        </a>
+        <p class="meta"><span class="repo">style</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/style" target="_blank" rel="noopener noreferrer" aria-label="style の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/style" target="_blank" rel="noopener noreferrer" aria-label="style の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-31</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/html/" rel="noopener">
+          <h3>html</h3>
+          <p class="desc">MEMO - Pagefind Search</p>
+        </a>
+        <p class="meta"><span class="repo">html</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/html" target="_blank" rel="noopener noreferrer" aria-label="html の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/html" target="_blank" rel="noopener noreferrer" aria-label="html の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-28</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/atlas/" rel="noopener">
+          <h3>atlas</h3>
+          <p class="desc">Watanabe3ti Atlas — Curiosity, indexed.</p>
+        </a>
+        <p class="meta"><span class="repo">atlas</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/atlas" target="_blank" rel="noopener noreferrer" aria-label="atlas の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/atlas" target="_blank" rel="noopener noreferrer" aria-label="atlas の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-24</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/cfos-sandbox/" rel="noopener">
+          <h3>cfos-sandbox</h3>
+          <p class="desc">Cloudflare OS 運用ノート</p>
+        </a>
+        <p class="meta"><span class="repo">cfos-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/cfos-sandbox" target="_blank" rel="noopener noreferrer" aria-label="cfos-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/cfos-sandbox" target="_blank" rel="noopener noreferrer" aria-label="cfos-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/next/" rel="noopener">
+          <h3>next</h3>
+          <p class="desc">next.watanabe3ti.com</p>
+        </a>
+        <p class="meta"><span class="repo">next</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/next" target="_blank" rel="noopener noreferrer" aria-label="next の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/next" target="_blank" rel="noopener noreferrer" aria-label="next の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/gtfs-jp-sandbox/" rel="noopener">
+          <h3>gtfs-jp-sandbox</h3>
+          <p class="desc">GTFS-JPを使ってみよう（教材）</p>
+        </a>
+        <p class="meta"><span class="repo">gtfs-jp-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/gtfs-jp-sandbox" target="_blank" rel="noopener noreferrer" aria-label="gtfs-jp-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/gtfs-jp-sandbox" target="_blank" rel="noopener noreferrer" aria-label="gtfs-jp-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/daily-news-digest/" rel="noopener">
+          <h3>daily-news-digest</h3>
+          <p class="desc">ワークショップ用 NHK NEWS - Automated daily news collection and publication</p>
+        </a>
+        <p class="meta"><span class="repo">daily-news-digest</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/daily-news-digest" target="_blank" rel="noopener noreferrer" aria-label="daily-news-digest の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/daily-news-digest" target="_blank" rel="noopener noreferrer" aria-label="daily-news-digest の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/pdf-sandbox/" rel="noopener">
+          <h3>pdf-sandbox</h3>
+          <p class="desc">PDF-Viewer （ワークショップ用）</p>
+        </a>
+        <p class="meta"><span class="repo">pdf-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/pdf-sandbox" target="_blank" rel="noopener noreferrer" aria-label="pdf-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/pdf-sandbox" target="_blank" rel="noopener noreferrer" aria-label="pdf-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/pwa-pe/" rel="noopener">
+          <h3>pwa-pe</h3>
+          <p class="desc">Testing Environment</p>
+        </a>
+        <p class="meta"><span class="repo">pwa-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/pwa-pe" target="_blank" rel="noopener noreferrer" aria-label="pwa-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/pwa-pe" target="_blank" rel="noopener noreferrer" aria-label="pwa-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/zakki6/" rel="noopener">
+          <h3>zakki6</h3>
+          <p class="desc">雑記録</p>
+        </a>
+        <p class="meta"><span class="repo">zakki6</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/zakki6" target="_blank" rel="noopener noreferrer" aria-label="zakki6 の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/zakki6" target="_blank" rel="noopener noreferrer" aria-label="zakki6 の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/sphinx-ce/" rel="noopener">
+          <h3>sphinx-ce</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">sphinx-ce</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/sphinx-ce" target="_blank" rel="noopener noreferrer" aria-label="sphinx-ce の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/sphinx-ce" target="_blank" rel="noopener noreferrer" aria-label="sphinx-ce の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/sphinx-std/" rel="noopener">
+          <h3>sphinx-std</h3>
+          <p class="desc">Sphinx 基本ツールのテスト用リポジトリ</p>
+        </a>
+        <p class="meta"><span class="repo">sphinx-std</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/sphinx-std" target="_blank" rel="noopener noreferrer" aria-label="sphinx-std の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/sphinx-std" target="_blank" rel="noopener noreferrer" aria-label="sphinx-std の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/docgist-pe/" rel="noopener">
+          <h3>docgist-pe</h3>
+          <p class="desc">Asciidoc - my Laboratory</p>
+        </a>
+        <p class="meta"><span class="repo">docgist-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/docgist-pe" target="_blank" rel="noopener noreferrer" aria-label="docgist-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/docgist-pe" target="_blank" rel="noopener noreferrer" aria-label="docgist-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/jupyterbook-ce/" rel="noopener">
+          <h3>jupyterbook-ce</h3>
+          <p class="desc">Created for feature comparison with Git Book</p>
+        </a>
+        <p class="meta"><span class="repo">jupyterbook-ce</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/jupyterbook-ce" target="_blank" rel="noopener noreferrer" aria-label="jupyterbook-ce の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/jupyterbook-ce" target="_blank" rel="noopener noreferrer" aria-label="jupyterbook-ce の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/tui-md-viewer/" rel="noopener">
+          <h3>tui-md-viewer</h3>
+          <p class="desc">Textualを使用したターミナルベースのMarkdownビューアー</p>
+        </a>
+        <p class="meta"><span class="repo">tui-md-viewer</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/tui-md-viewer" target="_blank" rel="noopener noreferrer" aria-label="tui-md-viewer の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/tui-md-viewer" target="_blank" rel="noopener noreferrer" aria-label="tui-md-viewer の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/slideshow-pe/" rel="noopener">
+          <h3>slideshow-pe</h3>
+          <p class="desc">Let&#x27;s try running a slideshow on GitHub Pages（GitHub Pagesでスライドショーを実行してみましょう）</p>
+        </a>
+        <p class="meta"><span class="repo">slideshow-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/slideshow-pe" target="_blank" rel="noopener noreferrer" aria-label="slideshow-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/slideshow-pe" target="_blank" rel="noopener noreferrer" aria-label="slideshow-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/screen-capture-api/" rel="noopener">
+          <h3>screen-capture-api</h3>
+          <p class="desc">画面キャプチャ・録画ツール（WebM）</p>
+        </a>
+        <p class="meta"><span class="repo">screen-capture-api</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/screen-capture-api" target="_blank" rel="noopener noreferrer" aria-label="screen-capture-api の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/screen-capture-api" target="_blank" rel="noopener noreferrer" aria-label="screen-capture-api の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/library-management-pe/" rel="noopener">
+          <h3>library-management-pe</h3>
+          <p class="desc">TEST REPOSITORY（PUBLIC）</p>
+        </a>
+        <p class="meta"><span class="repo">library-management-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/library-management-pe" target="_blank" rel="noopener noreferrer" aria-label="library-management-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/library-management-pe" target="_blank" rel="noopener noreferrer" aria-label="library-management-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/lexical-html/" rel="noopener">
+          <h3>lexical-html</h3>
+          <p class="desc">Markdown Editor by Lexical</p>
+        </a>
+        <p class="meta"><span class="repo">lexical-html</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/lexical-html" target="_blank" rel="noopener noreferrer" aria-label="lexical-html の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/lexical-html" target="_blank" rel="noopener noreferrer" aria-label="lexical-html の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/tiptap-editor-ce/" rel="noopener">
+          <h3>tiptap-editor-ce</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">tiptap-editor-ce</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/tiptap-editor-ce" target="_blank" rel="noopener noreferrer" aria-label="tiptap-editor-ce の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/tiptap-editor-ce" target="_blank" rel="noopener noreferrer" aria-label="tiptap-editor-ce の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/blueprint/" rel="noopener">
+          <h3>blueprint</h3>
+          <p class="desc">テスト中</p>
+        </a>
+        <p class="meta"><span class="repo">blueprint</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/blueprint" target="_blank" rel="noopener noreferrer" aria-label="blueprint の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/blueprint" target="_blank" rel="noopener noreferrer" aria-label="blueprint の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/ollama-turbo-quant-pe/" rel="noopener">
+          <h3>ollama-turbo-quant-pe</h3>
+          <p class="desc">ローカルLLM支援ツール</p>
+        </a>
+        <p class="meta"><span class="repo">ollama-turbo-quant-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ollama-turbo-quant-pe" target="_blank" rel="noopener noreferrer" aria-label="ollama-turbo-quant-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ollama-turbo-quant-pe" target="_blank" rel="noopener noreferrer" aria-label="ollama-turbo-quant-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/obsidian-quartz-ce/" rel="noopener">
+          <h3>obsidian-quartz-ce</h3>
+          <p class="desc">GitHub Pagesで Obsidianノートブック を公開するためのテンプレート（公開URL：RSS配信）</p>
+        </a>
+        <p class="meta"><span class="repo">obsidian-quartz-ce</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/obsidian-quartz-ce" target="_blank" rel="noopener noreferrer" aria-label="obsidian-quartz-ce の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/obsidian-quartz-ce" target="_blank" rel="noopener noreferrer" aria-label="obsidian-quartz-ce の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/notion-webui/" rel="noopener">
+          <h3>notion-webui</h3>
+          <p class="desc">試作品（検証中）</p>
+        </a>
+        <p class="meta"><span class="repo">notion-webui</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/notion-webui" target="_blank" rel="noopener noreferrer" aria-label="notion-webui の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/notion-webui" target="_blank" rel="noopener noreferrer" aria-label="notion-webui の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/links/" rel="noopener">
+          <h3>links</h3>
+          <p class="desc">統合リンクサイト</p>
+        </a>
+        <p class="meta"><span class="repo">links</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/links" target="_blank" rel="noopener noreferrer" aria-label="links の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/links" target="_blank" rel="noopener noreferrer" aria-label="links の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/lan-message-board/" rel="noopener">
+          <h3>lan-message-board</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">lan-message-board</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/lan-message-board" target="_blank" rel="noopener noreferrer" aria-label="lan-message-board の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/lan-message-board" target="_blank" rel="noopener noreferrer" aria-label="lan-message-board の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/cursor-sandbox/" rel="noopener">
+          <h3>cursor-sandbox</h3>
+          <p class="desc">（ワークショップ用）自由帳</p>
+        </a>
+        <p class="meta"><span class="repo">cursor-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/cursor-sandbox" target="_blank" rel="noopener noreferrer" aria-label="cursor-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/cursor-sandbox" target="_blank" rel="noopener noreferrer" aria-label="cursor-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="http://watanabe3ti.com" rel="noopener">
+          <h3>watanabe3tipapa.github.io</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">watanabe3tipapa.github.io</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/watanabe3tipapa.github.io" target="_blank" rel="noopener noreferrer" aria-label="watanabe3tipapa.github.io の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/watanabe3tipapa.github.io" target="_blank" rel="noopener noreferrer" aria-label="watanabe3tipapa.github.io の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/template-astro-vp/" rel="noopener">
+          <h3>template-astro-vp</h3>
+          <p class="desc">テスト中</p>
+        </a>
+        <p class="meta"><span class="repo">template-astro-vp</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/template-astro-vp" target="_blank" rel="noopener noreferrer" aria-label="template-astro-vp の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/template-astro-vp" target="_blank" rel="noopener noreferrer" aria-label="template-astro-vp の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/pelican-white-paper/" rel="noopener">
+          <h3>pelican-white-paper</h3>
+          <p class="desc">🖋️ Pelican を使ってみよう</p>
+        </a>
+        <p class="meta"><span class="repo">pelican-white-paper</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/pelican-white-paper" target="_blank" rel="noopener noreferrer" aria-label="pelican-white-paper の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/pelican-white-paper" target="_blank" rel="noopener noreferrer" aria-label="pelican-white-paper の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/omikuji/" rel="noopener">
+          <h3>omikuji</h3>
+          <p class="desc">おみくじ</p>
+        </a>
+        <p class="meta"><span class="repo">omikuji</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/omikuji" target="_blank" rel="noopener noreferrer" aria-label="omikuji の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/omikuji" target="_blank" rel="noopener noreferrer" aria-label="omikuji の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/nb-public/" rel="noopener">
+          <h3>nb-public</h3>
+          <p class="desc">📓 - public -</p>
+        </a>
+        <p class="meta"><span class="repo">nb-public</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/nb-public" target="_blank" rel="noopener noreferrer" aria-label="nb-public の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/nb-public" target="_blank" rel="noopener noreferrer" aria-label="nb-public の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/quarto-dsh/" rel="noopener">
+          <h3>quarto-dsh</h3>
+          <p class="desc">Quarto 編集・レンダリング強化ハーネス。正確な知識（quarto-pe）× エージェント基盤（DeepSeek Harness）</p>
+        </a>
+        <p class="meta"><span class="repo">quarto-dsh</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/quarto-dsh" target="_blank" rel="noopener noreferrer" aria-label="quarto-dsh の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/quarto-dsh" target="_blank" rel="noopener noreferrer" aria-label="quarto-dsh の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/ir-qubit/" rel="noopener">
+          <h3>ir-qubit</h3>
+          <p class="desc">Qubit - 自由研究</p>
+        </a>
+        <p class="meta"><span class="repo">ir-qubit</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ir-qubit" target="_blank" rel="noopener noreferrer" aria-label="ir-qubit の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ir-qubit" target="_blank" rel="noopener noreferrer" aria-label="ir-qubit の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/hatch-marimo-sandbox/" rel="noopener">
+          <h3>hatch-marimo-sandbox</h3>
+          <p class="desc">Hatch-managed marimo notebook sandbox with MCP/A2A/Ollama integration</p>
+        </a>
+        <p class="meta"><span class="repo">hatch-marimo-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/hatch-marimo-sandbox" target="_blank" rel="noopener noreferrer" aria-label="hatch-marimo-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/hatch-marimo-sandbox" target="_blank" rel="noopener noreferrer" aria-label="hatch-marimo-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/tomorrow-transceiver-socket/" rel="noopener">
+          <h3>tomorrow-transceiver-socket</h3>
+          <p class="desc">副教材</p>
+        </a>
+        <p class="meta"><span class="repo">tomorrow-transceiver-socket</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/tomorrow-transceiver-socket" target="_blank" rel="noopener noreferrer" aria-label="tomorrow-transceiver-socket の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/tomorrow-transceiver-socket" target="_blank" rel="noopener noreferrer" aria-label="tomorrow-transceiver-socket の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/issues-quarto-cms/" rel="noopener">
+          <h3>issues-quarto-cms</h3>
+          <p class="desc">CMS（教材）</p>
+        </a>
+        <p class="meta"><span class="repo">issues-quarto-cms</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/issues-quarto-cms" target="_blank" rel="noopener noreferrer" aria-label="issues-quarto-cms の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/issues-quarto-cms" target="_blank" rel="noopener noreferrer" aria-label="issues-quarto-cms の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/bookmark-manager-pe/" rel="noopener">
+          <h3>bookmark-manager-pe</h3>
+          <p class="desc">調整中</p>
+        </a>
+        <p class="meta"><span class="repo">bookmark-manager-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/bookmark-manager-pe" target="_blank" rel="noopener noreferrer" aria-label="bookmark-manager-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/bookmark-manager-pe" target="_blank" rel="noopener noreferrer" aria-label="bookmark-manager-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/graph-tutorial/" rel="noopener">
+          <h3>graph-tutorial</h3>
+          <p class="desc">EBPM 関連 GitHub リソースを自律収集・可視化するエビデンス・パイプライン</p>
+        </a>
+        <p class="meta"><span class="repo">graph-tutorial</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/graph-tutorial" target="_blank" rel="noopener noreferrer" aria-label="graph-tutorial の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/graph-tutorial" target="_blank" rel="noopener noreferrer" aria-label="graph-tutorial の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/txt-crypter-neo/" rel="noopener">
+          <h3>txt-crypter-neo</h3>
+          <p class="desc">TXT-Crypter Neo - Browser-only text encryption tool</p>
+        </a>
+        <p class="meta"><span class="repo">txt-crypter-neo</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/txt-crypter-neo" target="_blank" rel="noopener noreferrer" aria-label="txt-crypter-neo の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/txt-crypter-neo" target="_blank" rel="noopener noreferrer" aria-label="txt-crypter-neo の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/blume-pe/" rel="noopener">
+          <h3>blume-pe</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">blume-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/blume-pe" target="_blank" rel="noopener noreferrer" aria-label="blume-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/blume-pe" target="_blank" rel="noopener noreferrer" aria-label="blume-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/svg-generator/" rel="noopener">
+          <h3>svg-generator</h3>
+          <p class="desc">Sandbox（SVG_file）</p>
+        </a>
+        <p class="meta"><span class="repo">svg-generator</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/svg-generator" target="_blank" rel="noopener noreferrer" aria-label="svg-generator の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/svg-generator" target="_blank" rel="noopener noreferrer" aria-label="svg-generator の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/ludique/" rel="noopener">
+          <h3>ludique</h3>
+          <p class="desc">主サイトまでの寄り道です</p>
+        </a>
+        <p class="meta"><span class="repo">ludique</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ludique" target="_blank" rel="noopener noreferrer" aria-label="ludique の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ludique" target="_blank" rel="noopener noreferrer" aria-label="ludique の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/memory-chamber/" rel="noopener">
+          <h3>memory-chamber</h3>
+          <p class="desc">LP</p>
+        </a>
+        <p class="meta"><span class="repo">memory-chamber</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/memory-chamber" target="_blank" rel="noopener noreferrer" aria-label="memory-chamber の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/memory-chamber" target="_blank" rel="noopener noreferrer" aria-label="memory-chamber の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/album-pe/" rel="noopener">
+          <h3>album-pe</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">album-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/album-pe" target="_blank" rel="noopener noreferrer" aria-label="album-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/album-pe" target="_blank" rel="noopener noreferrer" aria-label="album-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/chronology-toolkit/" rel="noopener">
+          <h3>chronology-toolkit</h3>
+          <p class="desc">防災クロノロジー・ツールキット</p>
+        </a>
+        <p class="meta"><span class="repo">chronology-toolkit</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/chronology-toolkit" target="_blank" rel="noopener noreferrer" aria-label="chronology-toolkit の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/chronology-toolkit" target="_blank" rel="noopener noreferrer" aria-label="chronology-toolkit の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/dumpdumpdump/" rel="noopener">
+          <h3>dumpdumpdump</h3>
+          <p class="desc">Memory Dump Visualizer - macOS</p>
+        </a>
+        <p class="meta"><span class="repo">dumpdumpdump</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/dumpdumpdump" target="_blank" rel="noopener noreferrer" aria-label="dumpdumpdump の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/dumpdumpdump" target="_blank" rel="noopener noreferrer" aria-label="dumpdumpdump の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/nb-quarto-blog/" rel="noopener">
+          <h3>nb-quarto-blog</h3>
+          <p class="desc">nb - quarto &gt;&gt; Blog - Demo</p>
+        </a>
+        <p class="meta"><span class="repo">nb-quarto-blog</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/nb-quarto-blog" target="_blank" rel="noopener noreferrer" aria-label="nb-quarto-blog の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/nb-quarto-blog" target="_blank" rel="noopener noreferrer" aria-label="nb-quarto-blog の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/quarto-pe/" rel="noopener">
+          <h3>quarto-pe</h3>
+          <p class="desc">Quarto and Q markdown notations recommended</p>
+        </a>
+        <p class="meta"><span class="repo">quarto-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/quarto-pe" target="_blank" rel="noopener noreferrer" aria-label="quarto-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/quarto-pe" target="_blank" rel="noopener noreferrer" aria-label="quarto-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/marimo-sandbox/" rel="noopener">
+          <h3>marimo-sandbox</h3>
+          <p class="desc">📝 Marimo を使ってみよう</p>
+        </a>
+        <p class="meta"><span class="repo">marimo-sandbox</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/marimo-sandbox" target="_blank" rel="noopener noreferrer" aria-label="marimo-sandbox の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/marimo-sandbox" target="_blank" rel="noopener noreferrer" aria-label="marimo-sandbox の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/licensing-now/" rel="noopener">
+          <h3>licensing-now</h3>
+          <p class="desc">（説明なし）</p>
+        </a>
+        <p class="meta"><span class="repo">licensing-now</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/licensing-now" target="_blank" rel="noopener noreferrer" aria-label="licensing-now の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/licensing-now" target="_blank" rel="noopener noreferrer" aria-label="licensing-now の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#7ec8e3">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/cfos-showcase/" rel="noopener">
+          <h3>cfos-showcase</h3>
+          <p class="desc">Cloudflare OS Gadget Showcase</p>
+        </a>
+        <p class="meta"><span class="repo">cfos-showcase</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/cfos-showcase" target="_blank" rel="noopener noreferrer" aria-label="cfos-showcase の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/cfos-showcase" target="_blank" rel="noopener noreferrer" aria-label="cfos-showcase の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffadad">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/colab-manager/" rel="noopener">
+          <h3>colab-manager</h3>
+          <p class="desc">Google Drive ファイル管理支援ツール (Colab + CLI) — Google Drive file management tool</p>
+        </a>
+        <p class="meta"><span class="repo">colab-manager</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/colab-manager" target="_blank" rel="noopener noreferrer" aria-label="colab-manager の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/colab-manager" target="_blank" rel="noopener noreferrer" aria-label="colab-manager の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#fff">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/growi-blume-sitegen/" rel="noopener">
+          <h3>growi-blume-sitegen</h3>
+          <p class="desc">検証庭</p>
+        </a>
+        <p class="meta"><span class="repo">growi-blume-sitegen</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/growi-blume-sitegen" target="_blank" rel="noopener noreferrer" aria-label="growi-blume-sitegen の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/growi-blume-sitegen" target="_blank" rel="noopener noreferrer" aria-label="growi-blume-sitegen の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#ffe14d">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/4eq-2025-12-08/" rel="noopener">
+          <h3>4eq-2025-12-08</h3>
+          <p class="desc">「北海道・三陸沖後発地震注意情報」への適宜対応</p>
+        </a>
+        <p class="meta"><span class="repo">4eq-2025-12-08</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/4eq-2025-12-08" target="_blank" rel="noopener noreferrer" aria-label="4eq-2025-12-08 の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/4eq-2025-12-08" target="_blank" rel="noopener noreferrer" aria-label="4eq-2025-12-08 の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
+
+      <article class="card" style="background:#9ef01a">
+        <span class="tag">UPDATE-STAMP</span>
+        <a class="card-main" href="https://watanabe3tipapa.github.io/readme-governance-site/" rel="noopener">
+          <h3>readme-governance-site</h3>
+          <p class="desc">Landing page for readme-governance-pe: a README quality gate built on GitHub Actions</p>
+        </a>
+        <p class="meta"><span class="repo">readme-governance-site</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/readme-governance-site" target="_blank" rel="noopener noreferrer" aria-label="readme-governance-site の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/readme-governance-site" target="_blank" rel="noopener noreferrer" aria-label="readme-governance-site の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
     </div>
   </div>
   <div class="section" id="private-derived">
@@ -1373,75 +1471,115 @@
     <span class="title">Now:404 <small>(10)</small></span>
     <div class="grid">
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/ReStartPC-ACTION" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>ReStartPC-ACTION</h3>
-        <p class="desc">File repository for &quot;Re:Start PC ACTION&quot;</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/ReStartPC-ACTION" rel="noopener" target="_blank">
+          <h3>ReStartPC-ACTION</h3>
+          <p class="desc">File repository for &quot;Re:Start PC ACTION&quot;</p>
+        </a>
+        <p class="meta"><span class="repo">ReStartPC-ACTION</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ReStartPC-ACTION" target="_blank" rel="noopener noreferrer" aria-label="ReStartPC-ACTION の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ReStartPC-ACTION" target="_blank" rel="noopener noreferrer" aria-label="ReStartPC-ACTION の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/ollama-sakana-ai" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>ollama-sakana-ai</h3>
-        <p class="desc">Ollama Model Runner &amp; Sakana Chat Ratchet</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/ollama-sakana-ai" rel="noopener" target="_blank">
+          <h3>ollama-sakana-ai</h3>
+          <p class="desc">Ollama Model Runner &amp; Sakana Chat Ratchet</p>
+        </a>
+        <p class="meta"><span class="repo">ollama-sakana-ai</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ollama-sakana-ai" target="_blank" rel="noopener noreferrer" aria-label="ollama-sakana-ai の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ollama-sakana-ai" target="_blank" rel="noopener noreferrer" aria-label="ollama-sakana-ai の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/ollama-eo-pe" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>ollama-eo-pe</h3>
-        <p class="desc">Ollama Environment Optimization 4 macOS - Linux</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/ollama-eo-pe" rel="noopener" target="_blank">
+          <h3>ollama-eo-pe</h3>
+          <p class="desc">Ollama Environment Optimization 4 macOS - Linux</p>
+        </a>
+        <p class="meta"><span class="repo">ollama-eo-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ollama-eo-pe" target="_blank" rel="noopener noreferrer" aria-label="ollama-eo-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ollama-eo-pe" target="_blank" rel="noopener noreferrer" aria-label="ollama-eo-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/joke-windows3-pe" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>joke-windows3-pe</h3>
-        <p class="desc">Ollama Joke Environment （Use API server）</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/joke-windows3-pe" rel="noopener" target="_blank">
+          <h3>joke-windows3-pe</h3>
+          <p class="desc">Ollama Joke Environment （Use API server）</p>
+        </a>
+        <p class="meta"><span class="repo">joke-windows3-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/joke-windows3-pe" target="_blank" rel="noopener noreferrer" aria-label="joke-windows3-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/joke-windows3-pe" target="_blank" rel="noopener noreferrer" aria-label="joke-windows3-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/notion-ollama-pe" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>notion-ollama-pe</h3>
-        <p class="desc">Notion - Ollama 連携（要約作成ツール）</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/notion-ollama-pe" rel="noopener" target="_blank">
+          <h3>notion-ollama-pe</h3>
+          <p class="desc">Notion - Ollama 連携（要約作成ツール）</p>
+        </a>
+        <p class="meta"><span class="repo">notion-ollama-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/notion-ollama-pe" target="_blank" rel="noopener noreferrer" aria-label="notion-ollama-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/notion-ollama-pe" target="_blank" rel="noopener noreferrer" aria-label="notion-ollama-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/markitdown-ce" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>markitdown-ce</h3>
-        <p class="desc">Microsoft Office ドキュメントに特化したコンバーター</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/markitdown-ce" rel="noopener" target="_blank">
+          <h3>markitdown-ce</h3>
+          <p class="desc">Microsoft Office ドキュメントに特化したコンバーター</p>
+        </a>
+        <p class="meta"><span class="repo">markitdown-ce</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/markitdown-ce" target="_blank" rel="noopener noreferrer" aria-label="markitdown-ce の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/markitdown-ce" target="_blank" rel="noopener noreferrer" aria-label="markitdown-ce の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/ollama-lexical-editor-pe" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>ollama-lexical-editor-pe</h3>
-        <p class="desc">Lexical Editor - Ollama Enhanced Edition</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/ollama-lexical-editor-pe" rel="noopener" target="_blank">
+          <h3>ollama-lexical-editor-pe</h3>
+          <p class="desc">Lexical Editor - Ollama Enhanced Edition</p>
+        </a>
+        <p class="meta"><span class="repo">ollama-lexical-editor-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ollama-lexical-editor-pe" target="_blank" rel="noopener noreferrer" aria-label="ollama-lexical-editor-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ollama-lexical-editor-pe" target="_blank" rel="noopener noreferrer" aria-label="ollama-lexical-editor-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/ollama-model-runner" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>ollama-model-runner</h3>
-        <p class="desc">Ollamaを使おう</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/ollama-model-runner" rel="noopener" target="_blank">
+          <h3>ollama-model-runner</h3>
+          <p class="desc">Ollamaを使おう</p>
+        </a>
+        <p class="meta"><span class="repo">ollama-model-runner</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ollama-model-runner" target="_blank" rel="noopener noreferrer" aria-label="ollama-model-runner の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ollama-model-runner" target="_blank" rel="noopener noreferrer" aria-label="ollama-model-runner の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/notion-ollama-webui" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>notion-ollama-webui</h3>
-        <p class="desc">Web UIからNotionページに指示出しするツール（Ollama使用）</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/notion-ollama-webui" rel="noopener" target="_blank">
+          <h3>notion-ollama-webui</h3>
+          <p class="desc">Web UIからNotionページに指示出しするツール（Ollama使用）</p>
+        </a>
+        <p class="meta"><span class="repo">notion-ollama-webui</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/notion-ollama-webui" target="_blank" rel="noopener noreferrer" aria-label="notion-ollama-webui の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/notion-ollama-webui" target="_blank" rel="noopener noreferrer" aria-label="notion-ollama-webui の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
 
-      <a class="card broken" href="https://github.com/watanabe3tipapa/ai-ratchet-pe" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:404</span>
-        <h3>ai-ratchet-pe</h3>
-        <p class="desc">AIを支援する自動化runner（学習用）</p>
-        <p class="date">更新 2026-08-22</p>
-      </a>
+        <a class="card-main" href="https://github.com/watanabe3tipapa/ai-ratchet-pe" rel="noopener" target="_blank">
+          <h3>ai-ratchet-pe</h3>
+          <p class="desc">AIを支援する自動化runner（学習用）</p>
+        </a>
+        <p class="meta"><span class="repo">ai-ratchet-pe</span></p>
+        <div class="card-foot"><div class="card-tools"><a class="card-tool tool-diagram" data-card-tool="diagram" href="https://gitdiagram.com/watanabe3tipapa/ai-ratchet-pe" target="_blank" rel="noopener noreferrer" aria-label="ai-ratchet-pe の構成図を GitDiagram で開く（新しいタブ）" title="GitDiagram で構成図を開く（新しいタブ）">構成図 ↗</a>
+<a class="card-tool tool-gitingest" data-card-tool="gitingest" href="https://gitingest.com/watanabe3tipapa/ai-ratchet-pe" target="_blank" rel="noopener noreferrer" aria-label="ai-ratchet-pe の Digest を Gitingest で開く（新しいタブ）" title="Gitingest で Digest を開く（新しいタブ）">Digest ↗</a></div><p class="date">更新 2026-08-22</p></div>
+      </article>
     </div>
   </div>
   <footer>Powered by GitHub Actions &amp; GitHub Pages</footer>

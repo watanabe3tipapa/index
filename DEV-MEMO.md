@@ -249,3 +249,40 @@ docs/index.md                     # 廃止（削除）
 - タイポチェック:
   - `uvx codespell` を追跡対象の全テキストファイルに実行し、指摘 0 件。
   - 新規文言の「GitDiagram」「SIDECAR」「構成図」「新しいタブ」の表記を目視確認し、揺れなし。
+
+### Gitingest を追加し、全公開カードにもツール導線を展開（2026-11-14）
+- ユーザー要望: 「SIDECAR にさらに Gitingest を追加」「各カードにも追加」「両方（構成図 / Digest）」
+  「Now:404 にも」「表示名は `Digest ↗`」。
+- `generate_index.py`:
+  - `TOOL_DEFS` に `diagram`（GitDiagram / 構成図）と `gitingest`（Gitingest / Digest）を集約。
+  - `gitdiagram_url()` を `tool_url(repo_url, base)` に汎用化し、URL 生成を共通化。
+  - `tools_for(scope)` / `tool_urls()` / `render_tool_links()` を追加し、SIDECAR・カード・サイト常設の
+    リンク描画を1か所に統一。`aria-label` にはリポジトリ名を含める。
+  - 公開カードと Now:404 カードを `<a>` から `<article>` ＋ `<a class="card-main">` に変更。
+    `.card-main::after` のストレッチリンクでカード全体クリックを維持し、`.card-tools` を
+    `position: relative; z-index: 2` で前面に置いて `<a>` の入れ子を回避。
+  - Private 由来カードは `repo_url` を持たないため従来構造のまま（ツールリンクなし）。
+  - SIDECAR のおすすめは `OPEN →` を全幅、その下に `構成図 ↗` / `Digest ↗` の2ボタン。
+    常設は `THIS SITE` ラベル＋ `このサイトの構成図 ↗` / `このサイトの Digest ↗` を縦積み。
+  - `validate_card_tools()` と `_LinkNestingChecker` / `validate_link_nesting()` を追加。
+    `validate_output` のカード数カウントは `card-main` / `card-tool` を拾わない正規表現に修正。
+- 設定: `dailyPick.diagram` を廃止し、トップレベル `tools` に移行。
+  `{"sidecar": ["diagram", "gitingest"], "cards": ["diagram", "gitingest"]}`。
+  省略時は全ツール、空配列でその場所は非表示。README の設定説明も更新。
+- CSS: `.card-foot` / `.card-tools` / `.card-tool` を追加。構成図は緑、Digest は水色。
+  SIDECAR 常設ボタンは縦積みにして、300px 幅でラベルが途中改行されないようにした。
+- 検証:
+  - 再生成成功: Public 93（83 ok / 10 404）＋ Private 33 = **126 カード**。
+  - カード内ツール: `class="card-tools"` **93**、`data-card-tool="diagram"` **93**、
+    `data-card-tool="gitingest"` **93**（93 × 2 = **186本**）。
+  - SIDECAR: `data-pick-tool` 各1、`data-site-tool` 各1（合計 **4本**）。
+  - `target="_blank" rel="noopener noreferrer"` **190箇所**（186 + 4）。
+  - `<a>` の入れ子 0、タグ不整合 0、プレースホルダ 0。
+  - Private カード 33枚にツールリンク 0。
+  - GitDiagram / Gitingest の代表8 URL（index、svg-generator、通常カード、404カード）が **HTTP 200**。
+  - 390 / 640 / 641 / 900 / 1120 / 1121 / 1440px で横スクロールなし。
+  - ヘッドレス Chrome のヒットテストで、カード全体クリック・カード内ツール・常設リンクが
+    それぞれ正しい要素に当たることを確認。
+- タイポチェック:
+  - `uvx codespell` を追跡対象の全テキストファイルに実行し、指摘 0 件。
+  - 「GitDiagram」「Gitingest」「Digest」「構成図」「THIS SITE」の表記を目視確認し、揺れなし。

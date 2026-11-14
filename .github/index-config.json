@@ -10,7 +10,10 @@
     "enabled": true,
     "seedSalt": "index",
     "recentDays": 14,
-    "curated": [],
-    "diagram": true
+    "curated": []
+  },
+  "tools": {
+    "sidecar": ["diagram", "gitingest"],
+    "cards": ["diagram", "gitingest"]
   }
 }

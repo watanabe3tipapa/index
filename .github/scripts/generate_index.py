@@ -11,11 +11,13 @@ truncated page.
 """
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
+from html.parser import HTMLParser
 import hashlib
 import html
 import json
 import os
 import random
+import re
 import sys
 import time
 import urllib.error
@@ -36,14 +38,27 @@ STATUS_WORKERS = 10
 # 「本日のおすすめ」の日付判定は JST 基準（UTC だと JST 9:00 で日付が変わるため）。
 JST = timezone(timedelta(hours=9))
 
-# GitHub URL の "hub" を "diagram" に置き換えた構成図サービス。
-GITDIAGRAM_BASE = "https://gitdiagram.com"
-
 with open(os.path.join(REPO_ROOT, ".github", "index-config.json")) as f:
     CONFIG = json.load(f)
 OWNER = CONFIG.get("owner", OWNER)
 SITE_REPO = CONFIG.get("siteRepo", "index")
 HOME_OVERRIDES = CONFIG.get("homeOverrides", {})
+
+# カード / SIDECAR から開ける外部ツール。key は設定 JSON の tools で使う。
+TOOL_DEFS = {
+    "diagram": {
+        "label": "構成図",
+        "service": "GitDiagram",
+        "base": "https://gitdiagram.com",
+        "class": "tool-diagram",
+    },
+    "gitingest": {
+        "label": "Digest",
+        "service": "Gitingest",
+        "base": "https://gitingest.com",
+        "class": "tool-gitingest",
+    },
+}
 
 with open(os.path.join(REPO_ROOT, ".github", "index-exclude.txt")) as f:
     EXCLUDE = {
@@ -272,8 +287,8 @@ def pick_reason(pick):
     return "静かな名作"
 
 
-def gitdiagram_url(repo_url):
-    """Map a public GitHub repository URL to its GitDiagram page."""
+def tool_url(repo_url, base):
+    """Map a public GitHub repository URL to an external tool page."""
     parsed = urlparse(repo_url or "")
     if parsed.scheme not in ("http", "https"):
         return None
@@ -282,10 +297,69 @@ def gitdiagram_url(repo_url):
     path = parsed.path.rstrip("/")
     if len([part for part in path.split("/") if part]) < 2:
         return None
-    return GITDIAGRAM_BASE + path
+    return base.rstrip("/") + path
 
 
-def render_pick(pick, show_diagram=True):
+def tools_for(scope):
+    """Return enabled tool keys for a placement (sidecar/cards)."""
+    scopes = CONFIG.get("tools") or {}
+    keys = scopes.get(scope)
+    if keys is None:
+        return list(TOOL_DEFS)
+    if not isinstance(keys, list):
+        raise RuntimeError(f"tools.{scope} must be a list")
+    unknown = [key for key in keys if key not in TOOL_DEFS]
+    if unknown:
+        print(f"tools.{scope}: ignoring unknown tools: {', '.join(unknown)}", file=sys.stderr)
+    return [key for key in keys if key in TOOL_DEFS]
+
+
+def tool_urls(repo_url, tool_keys):
+    """Return {tool_key: url} for tools that accept this repository URL."""
+    urls = {}
+    for key in tool_keys:
+        url = tool_url(repo_url, TOOL_DEFS[key]["base"])
+        if url:
+            urls[key] = url
+    return urls
+
+
+def render_tool_links(repo_url, name, tool_keys, context):
+    """Render external tool links for a card, the pick, or this site."""
+    bases = {"pick": "pick-action", "card": "card-tool", "site": "site-tool"}
+    markers = {
+        "pick": "data-pick-tool",
+        "card": "data-card-tool",
+        "site": "data-site-tool",
+    }
+    links = []
+    for key, url in tool_urls(repo_url, tool_keys).items():
+        tool = TOOL_DEFS[key]
+        label = tool["label"]
+        service = tool["service"]
+        # 欧文ラベル（Digest）の前後だけ半角スペースを入れて読みやすくする。
+        gap = " " if label[:1].isascii() else ""
+        title = f"{service} で{gap}{label}{gap}を開く（新しいタブ）"
+        if context == "site":
+            aria = f"このサイトの{gap}{label}{gap}を {service} で開く（新しいタブ）"
+            visible = f"このサイトの{gap}{label} ↗"
+        else:
+            aria = f"{name} の{gap}{label}{gap}を {service} で開く（新しいタブ）"
+            visible = f"{label} ↗"
+        links.append(
+            f'<a class="{bases[context]} {tool["class"]}" '
+            f'{markers[context]}="{key}" href="{esc(url)}" target="_blank" '
+            f'rel="noopener noreferrer" aria-label="{esc(aria)}" '
+            f'title="{esc(title)}">{visible}</a>'
+        )
+    return "\n".join(links)
+
+
+def site_repo_url():
+    return f"https://github.com/{OWNER}/{SITE_REPO}"
+
+
+def render_pick(pick, tool_keys):
     if pick is None:
         return ""
     item = pick["item"]
@@ -293,14 +367,7 @@ def render_pick(pick, show_diagram=True):
     pages_url = esc(item["pages_url"])
     desc = esc(item.get("description") or "（説明なし）")
     stamp = "CURATED" if pick["curated"] else "AUTO PICK"
-    diagram_url = gitdiagram_url(item.get("repo_url")) if show_diagram else None
-    diagram = ""
-    if diagram_url:
-        diagram = f'''
-              <a class="pick-action pick-diagram" data-diagram="{name}" href="{esc(diagram_url)}"
-                 target="_blank" rel="noopener noreferrer"
-                 aria-label="{name} の構成図を GitDiagram で開く（新しいタブ）"
-                 title="GitDiagram で構成図を開く（新しいタブ・初回は生成に時間がかかります）">構成図 ↗</a>'''
+    tools = render_tool_links(item.get("repo_url"), item["name"], tool_keys, "pick")
     return f'''
         <div class="pick" data-pick="{name}">
           <a class="pick-main" href="{pages_url}" rel="noopener">
@@ -311,20 +378,22 @@ def render_pick(pick, show_diagram=True):
           <div class="pick-foot">
             <span class="pick-reason">{esc(pick_reason(pick))}</span>
             <span class="pick-actions">
-              <a class="pick-action pick-open" href="{pages_url}" rel="noopener">OPEN →</a>{diagram}
+              <a class="pick-action pick-open" href="{pages_url}" rel="noopener">OPEN →</a>
+              {tools}
             </span>
           </div>
         </div>'''
 
 
-def render_site_diagram(show_diagram=True):
-    if not show_diagram:
+def render_site_tools(tool_keys):
+    links = render_tool_links(site_repo_url(), "このサイト", tool_keys, "site")
+    if not links:
         return ""
-    url = f"{GITDIAGRAM_BASE}/{OWNER}/{SITE_REPO}"
     return f'''
-      <p class="sidecar-site"><a data-site-diagram="1" href="{esc(url)}"
-        target="_blank" rel="noopener noreferrer"
-        title="GitDiagram でこのサイトの構成図を開く（新しいタブ）">このサイトの構成図 ↗</a></p>'''
+      <div class="sidecar-tools">
+        <span class="sidecar-tools-title">THIS SITE</span>
+        <div class="sidecar-tools-links">{links}</div>
+      </div>'''
 
 
 def render_ticker(ok_items, ng_count):
@@ -341,9 +410,9 @@ def render_ticker(ok_items, ng_count):
         </div>'''
 
 
-def render_sidecar(pick, ok_items, private_count, ng_count, generated_at, show_diagram=True):
+def render_sidecar(pick, ok_items, private_count, ng_count, generated_at, tool_keys):
     ticker = render_ticker(ok_items, ng_count)
-    site_diagram = render_site_diagram(show_diagram)
+    site_tools = render_site_tools(tool_keys)
     return f'''
   <details class="sidecar" open>
     <summary>
@@ -352,13 +421,13 @@ def render_sidecar(pick, ok_items, private_count, ng_count, generated_at, show_d
       <span class="sidecar-toggle" aria-hidden="true"></span>
     </summary>
     <div class="sidecar-body">
-      <p class="sidecar-note">公開中の Pages を毎日自動巡回しています。更新日は最終 push 日時です。</p>{render_pick(pick, show_diagram)}{ticker}
+      <p class="sidecar-note">公開中の Pages を毎日自動巡回しています。更新日は最終 push 日時です。</p>{render_pick(pick, tool_keys)}{ticker}
       <dl class="sidecar-stats">
         <div><dt>PUBLIC</dt><dd>{len(ok_items)}</dd></div>
         <div><dt>PRIVATE</dt><dd>{private_count}</dd></div>
         <div><dt>NG</dt><dd>{ng_count}</dd></div>
       </dl>
-      <p class="sidecar-time">生成 {esc(generated_at)}</p>{site_diagram}
+      <p class="sidecar-time">生成 {esc(generated_at)}</p>{site_tools}
     </div>
   </details>
   <script>
@@ -382,24 +451,70 @@ def render_sidecar(pick, ok_items, private_count, ng_count, generated_at, show_d
   </script>'''
 
 
-def validate_sidecar(html_out, pick, show_diagram=True):
+def validate_sidecar(html_out, pick, tool_keys):
     if html_out.count('class="sidecar"') != 1:
         raise RuntimeError("Generated HTML must contain exactly one sidecar")
     if pick is not None and f'data-pick="{esc(pick["item"]["name"])}"' not in html_out:
         raise RuntimeError("Daily pick is missing from generated HTML")
-    if show_diagram:
-        if 'data-site-diagram="1"' not in html_out:
-            raise RuntimeError("Site GitDiagram link is missing from generated HTML")
-        if 'target="_blank" rel="noopener noreferrer"' not in html_out:
-            raise RuntimeError("GitDiagram link must open in a new tab")
-        if pick is not None:
-            diagram_url = gitdiagram_url(pick["item"].get("repo_url"))
-            if diagram_url:
-                name = esc(pick["item"]["name"])
-                if f'data-diagram="{name}"' not in html_out:
-                    raise RuntimeError("Daily pick GitDiagram link is missing from generated HTML")
-                if f'href="{esc(diagram_url)}"' not in html_out:
-                    raise RuntimeError("Daily pick GitDiagram URL is incorrect")
+    for key, url in tool_urls(site_repo_url(), tool_keys).items():
+        if f'data-site-tool="{key}"' not in html_out:
+            raise RuntimeError(f"Site {key} link is missing from generated HTML")
+        if f'href="{esc(url)}"' not in html_out:
+            raise RuntimeError(f"Site {key} URL is incorrect")
+    if pick is not None:
+        for key, url in tool_urls(pick["item"].get("repo_url"), tool_keys).items():
+            if f'data-pick-tool="{key}"' not in html_out:
+                raise RuntimeError(f"Daily pick {key} link is missing from generated HTML")
+            if f'href="{esc(url)}"' not in html_out:
+                raise RuntimeError(f"Daily pick {key} URL is incorrect")
+    if tool_keys and 'target="_blank" rel="noopener noreferrer"' not in html_out:
+        raise RuntimeError("External tool links must open in a new tab")
+
+
+def validate_card_tools(html_out, items, tool_keys):
+    """Every public repo card should carry all enabled tool links."""
+    expected_blocks = sum(1 for it in items if tool_urls(it.get("repo_url"), tool_keys))
+    actual_blocks = html_out.count('class="card-tools"')
+    if actual_blocks != expected_blocks:
+        raise RuntimeError(
+            f"Card tool block count mismatch: rendered {actual_blocks}, expected {expected_blocks}")
+    for key in tool_keys:
+        expected = sum(1 for it in items
+                       if tool_url(it.get("repo_url"), TOOL_DEFS[key]["base"]))
+        actual = html_out.count(f'data-card-tool="{key}"')
+        if actual != expected:
+            raise RuntimeError(
+                f"Card {key} link count mismatch: rendered {actual}, expected {expected}")
+
+
+class _LinkNestingChecker(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.depth = 0
+        self.errors = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag != "a":
+            return
+        self.depth += 1
+        if self.depth > 1:
+            self.errors.append(self.getpos())
+
+    def handle_endtag(self, tag):
+        if tag != "a":
+            return
+        if self.depth == 0:
+            self.errors.append(self.getpos())
+        else:
+            self.depth -= 1
+
+
+def validate_link_nesting(html_out):
+    checker = _LinkNestingChecker()
+    checker.feed(html_out)
+    checker.close()
+    if checker.errors or checker.depth:
+        raise RuntimeError(f"Invalid anchor nesting in generated HTML: {checker.errors[:3]}")
 
 
 def validate_output(html_out, expected_cards):
@@ -408,11 +523,14 @@ def validate_output(html_out, expected_cards):
         raise RuntimeError("Unresolved template placeholder remains in generated HTML")
     if "<title>GitHub - INDEX</title>" not in html_out:
         raise RuntimeError("Generated HTML is missing the expected title")
-    actual_cards = html_out.count('class="card')
+    # class="card-main" / class="card-tool" を数えないよう、class 属性の区切りまで見る。
+    actual_cards = len(re.findall(
+        r'<article class="card(?=[ "])|<a class="card(?=[ "])', html_out))
     if actual_cards != expected_cards:
         raise RuntimeError(f"Card count mismatch: rendered {actual_cards}, expected {expected_cards}")
     if expected_cards == 0:
         raise RuntimeError("Refusing to write an index with zero cards")
+    validate_link_nesting(html_out)
 
 
 def write_atomic(path, content):
@@ -461,17 +579,19 @@ def main():
     # Now:404 は最下部へ（更新順に整列）
     broken_items.sort(key=lambda r: r["updated"], reverse=True)
 
-    cards = "\n".join(render_card(r, i) for i, r in enumerate(ok_items))
-    broken_cards = "\n".join(render_broken_card(r) for r in broken_items)
+    sidecar_tools = tools_for("sidecar")
+    card_tools = tools_for("cards")
+
+    cards = "\n".join(render_card(r, i, card_tools) for i, r in enumerate(ok_items))
+    broken_cards = "\n".join(render_broken_card(r, card_tools) for r in broken_items)
     private_cards = "\n".join(render_private_card(r, i) for i, r in enumerate(private_items))
 
     pick = pick_of_the_day(ok_items, CONFIG)
-    show_diagram = bool((CONFIG.get("dailyPick") or {}).get("diagram", True))
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     private_broken = sum(1 for it in private_items if it["status"] in (404, -1))
     ng_count = len(broken_items) + private_broken
     sidecar = render_sidecar(pick, ok_items, len(private_items), ng_count, generated_at,
-                             show_diagram)
+                             sidecar_tools)
 
     html_out = HTML_TEMPLATE
     html_out = html_out.replace("{{COUNT}}", str(len(items)))
@@ -485,7 +605,8 @@ def main():
     html_out = html_out.replace("{{SIDECAR}}", sidecar)
 
     validate_output(html_out, len(ok_items) + len(broken_items) + len(private_items))
-    validate_sidecar(html_out, pick, show_diagram)
+    validate_sidecar(html_out, pick, sidecar_tools)
+    validate_card_tools(html_out, ok_items + broken_items, card_tools)
 
     out = os.path.join(REPO_ROOT, "docs", "index.html")
     write_atomic(out, html_out)
@@ -497,32 +618,42 @@ CARD_COLORS = ["#fff", "#ffe14d", "#9ef01a", "#7ec8e3", "#ffadad"]
 PRIVATE_COLORS = ["#e9d5ff", "#ddd6fe", "#c7d2fe", "#fae8ff", "#fff"]
 
 
-def render_broken_card(r):
+def render_card_tool_block(r, tool_keys):
+    links = render_tool_links(r.get("repo_url"), r["name"], tool_keys, "card")
+    if not links:
+        return ""
+    return f'<div class="card-tools">{links}</div>'
+
+
+def render_broken_card(r, tool_keys):
     desc = esc(r["description"] or "（説明なし）")
     status = r.get("status", -1)
     label = "404" if status == 404 else "ERR"
     return f'''
-      <a class="card broken" href="{esc(r["repo_url"])}" rel="noopener" target="_blank">
+      <article class="card broken">
         <span class="tag broken-tag">NOW:{label}</span>
-        <h3>{esc(r["name"])}</h3>
-        <p class="desc">{desc}</p>
-        <p class="date">更新 {esc(r["updated"])}</p>
-      </a>'''
+        <a class="card-main" href="{esc(r["repo_url"])}" rel="noopener" target="_blank">
+          <h3>{esc(r["name"])}</h3>
+          <p class="desc">{desc}</p>
+        </a>
+        <p class="meta"><span class="repo">{esc(r["name"])}</span></p>
+        <div class="card-foot">{render_card_tool_block(r, tool_keys)}<p class="date">更新 {esc(r["updated"])}</p></div>
+      </article>'''
 
 
-def render_card(r, index):
+def render_card(r, index, tool_keys):
     desc = esc(r["description"] or "（説明なし）")
     bg = CARD_COLORS[index % len(CARD_COLORS)]
     return f'''
-      <a class="card" style="background:{bg}" href="{esc(r["pages_url"])}" rel="noopener">
+      <article class="card" style="background:{bg}">
         <span class="tag">UPDATE-STAMP</span>
-        <h3>{esc(r["name"])}</h3>
-        <p class="desc">{desc}</p>
-        <p class="meta">
-          <span class="repo">{esc(r["name"])}</span>
-        </p>
-        <p class="date">更新 {esc(r["updated"])}</p>
-      </a>'''
+        <a class="card-main" href="{esc(r["pages_url"])}" rel="noopener">
+          <h3>{esc(r["name"])}</h3>
+          <p class="desc">{desc}</p>
+        </a>
+        <p class="meta"><span class="repo">{esc(r["name"])}</span></p>
+        <div class="card-foot">{render_card_tool_block(r, tool_keys)}<p class="date">更新 {esc(r["updated"])}</p></div>
+      </article>'''
 
 
 def render_private_card(r, index):
@@ -575,6 +706,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           transition: transform .1s ease, box-shadow .1s ease; }
   .card:hover { transform: translate(-4px, -4px); box-shadow: 0 0 0 4px #000; }
   .card:active { transform: translate(2px, 6px); box-shadow: 2px 2px 0 #000; }
+  .card:focus-visible, .card:focus-within { outline: 4px solid #000; outline-offset: 2px; }
+  .card-main { display: flex; flex-direction: column; flex: 1;
+               color: #000; text-decoration: none; }
+  .card-main::after { content: ""; position: absolute; inset: 0; }
   .card .tag { position: absolute; top: -0.9rem; right: 1rem; background: #000; color: #fff;
                font-size: .8rem; font-weight: 900; padding: .15rem .6rem; border: 2px solid #fff;
                transform: rotate(3deg); }
@@ -583,8 +718,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 overflow-wrap: anywhere; }
   .card .meta { border-top: 3px dashed #000; padding-top: .8rem; margin-top: .5rem; }
   .card .repo { font-size: .75rem; font-weight: 900; overflow-wrap: anywhere; }
-  .card .date { align-self: flex-end; margin-top: .5rem; font-size: .85rem; font-weight: 900;
+  .card .date { margin-left: auto; font-size: .85rem; font-weight: 900;
                 background: #fff; border: 2px solid #000; padding: .1rem .4rem; }
+  .card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .5rem; }
+  .card-tools { display: flex; flex-wrap: wrap; gap: .3rem; position: relative; z-index: 2; }
+  .card-tool { display: inline-block; padding: .16rem .38rem; border: 2px solid #000;
+               font-size: .62rem; font-weight: 900; line-height: 1.3; text-decoration: none;
+               white-space: nowrap; transition: transform .1s ease, box-shadow .1s ease; }
+  .card-tool:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 #000; }
+  .card-tool:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
   .section { margin-top: 3rem; border-top: 4px solid #000; padding-top: 1.5rem; }
   .section.first { margin-top: 0; border-top: none; padding-top: 0; }
   .section .title { display: inline-block; background: #000; color: #fff; font-weight: 900;
@@ -638,14 +780,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                gap: .5rem; border-top: 3px dashed #000; padding-top: .5rem;
                font-size: .72rem; font-weight: 900; }
   .pick-reason { flex: 1 1 auto; }
-  .pick-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; }
-  .pick-action { display: inline-block; padding: .22rem .45rem; border: 2px solid #000;
-                 font-size: .68rem; font-weight: 900; line-height: 1.3; text-decoration: none;
-                 white-space: nowrap; transition: transform .1s ease, box-shadow .1s ease; }
-  .pick-open { background: #000; color: #fff; }
-  .pick-diagram { background: #9ef01a; color: #000; }
+  .pick-actions { display: flex; flex-wrap: wrap; gap: .35rem; width: 100%; }
+  .pick-action { flex: 1 1 auto; display: inline-block; padding: .22rem .45rem; border: 2px solid #000;
+                 font-size: .68rem; font-weight: 900; line-height: 1.3; text-align: center;
+                 text-decoration: none; white-space: nowrap;
+                 transition: transform .1s ease, box-shadow .1s ease; }
+  .pick-open { flex: 1 1 100%; background: #000; color: #fff; }
   .pick-action:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 #000; }
   .pick-action:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
+  .tool-diagram { background: #9ef01a; color: #000; }
+  .tool-gitingest { background: #7ec8e3; color: #000; }
   .ticker { overflow: hidden; border: 3px solid #000; background: #000; color: #fff;
             font-size: .78rem; font-weight: 900; }
   .ticker-track { display: flex; width: max-content; animation: ticker-scroll 26s linear infinite; }
@@ -660,13 +804,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .sidecar-stats dt { font-size: .62rem; font-weight: 900; letter-spacing: .08em; }
   .sidecar-stats dd { font-size: 1.25rem; font-weight: 900; line-height: 1.2; }
   .sidecar-time { margin-top: .8rem; text-align: right; font-size: .68rem; font-weight: 900; }
-  .sidecar-site { margin-top: .8rem; }
-  .sidecar-site a { display: block; padding: .5rem .4rem; border: 3px solid #000; background: #7ec8e3;
-                    box-shadow: 4px 4px 0 #000; color: #000; font-size: .75rem; font-weight: 900;
-                    text-align: center; text-decoration: none;
-                    transition: transform .1s ease, box-shadow .1s ease; }
-  .sidecar-site a:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
-  .sidecar-site a:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
+  .sidecar-tools { margin-top: .8rem; }
+  .sidecar-tools-title { display: block; margin-bottom: .35rem; font-size: .62rem;
+                         font-weight: 900; letter-spacing: .08em; }
+  .sidecar-tools-links { display: grid; grid-template-columns: 1fr; gap: .35rem; }
+  .site-tool { display: block; padding: .5rem .3rem; border: 3px solid #000; box-shadow: 4px 4px 0 #000;
+               color: #000; font-size: .72rem; font-weight: 900; text-align: center;
+               text-decoration: none; transition: transform .1s ease, box-shadow .1s ease; }
+  .site-tool:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+  .site-tool:focus-visible { outline: 3px solid #ff2d75; outline-offset: 2px; }
   @keyframes led-pulse { 50% { background: #ff2d75; } }
   @keyframes ticker-scroll { to { transform: translateX(-50%); } }
   @media (max-width: 1120px) {
@@ -677,7 +823,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   @media (prefers-reduced-motion: reduce) {
     .led { animation: none; }
     .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
-    .pick, .pick-action, .sidecar-site a { transition: none; }
+    .pick, .pick-action, .card-tool, .site-tool { transition: none; }
   }
 </style>
 </head>
