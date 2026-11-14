@@ -4,5 +4,11 @@
   "homeOverrides": {
     "watanabe3tipapa.github.io": "http://watanabe3ti.com"
   },
-  "privateMinUpdated": "2023-01-01"
+  "privateMinUpdated": "2023-01-01",
+  "dailyPick": {
+    "enabled": true,
+    "seedSalt": "index",
+    "recentDays": 14,
+    "curated": []
+  }
 }

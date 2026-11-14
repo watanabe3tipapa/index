@@ -200,3 +200,27 @@ docs/index.md                     # 廃止（削除）
 - 前回確認時（2026-11-12）からの実質的な変更は、11/12 以降に push された 6 リポジトリの更新日と並び順のみ。
   - 対象: editorial-collector / watanabe3tipapa / frameworks-now / standard-libraries-now / goose-sandbox / 3d-books。
   - 追加・消失リポジトリなし。
+
+### SIDECAR（本日のおすすめ）機能の完成（2026-11-14）
+- 作業再開時点では、`generate_index.py` に SIDECAR 用の関数（`pick_of_the_day` / `render_pick` /
+  `render_ticker` / `render_sidecar` / `validate_sidecar`）だけが追加され、HTML テンプレート側の
+  プレースホルダ・CSS・設定が未実装だった。この状態では `validate_sidecar` が必ず失敗するため、以下を実装して完成させた。
+- **テンプレート**:
+  - `<body>` 直下を `.shell` グリッドに変更し、`{{SIDECAR}}` を配置。ワイド画面は本文（最大 1020px）＋右 300px の2カラム。
+  - 1120px 以下は1カラムに切り替え、SIDECAR をヘッダー上部の折りたたみパネルとして表示。
+  - neo-brutalism に合わせた太枠・ハードシャドウ・黄/緑/紫/赤の配色。`prefers-reduced-motion` で LED とティッカーを停止。
+  - 開閉状態は `localStorage` に保存（画面幅による初期状態は保存しない）。初期状態は2カラムになる
+    1121px 以上で開、狭い画面では閉。
+- **おすすめ抽選**:
+  - JST の日付＋`seedSalt` の SHA-256 を seed に使い、同じ日は再生成しても同じ結果になる決定的抽選。
+  - 説明文がある公開・正常リポジトリのみ候補。`recentDays`（既定 14 日）以内の更新作を約7割、
+    全体から約3割選び、埋もれたリポジトリも拾う。`curated` を指定した場合はその中から日替わりで選ぶ。
+  - `INDEX_TODAY=YYYY-MM-DD` で日付を固定して検証可能。
+- **設定**: `.github/index-config.json` に `dailyPick`（`enabled` / `seedSalt` / `recentDays` / `curated`）を追加。
+  README に各項目の意味と SIDECAR の仕様を追記。
+- **検証**:
+  - ローカル再生成成功: Public 93（83 ok / 10 404）＋ Private 33 = **126 カード**（従来と同数）。
+  - HTML パーサで開始・終了タグの不整合 0 件、プレースホルダ残存 0 件、SIDECAR 1 個を確認。
+  - 抽選ロジックの単体確認: 同一日で再現、`curated` 優先、`enabled: false` で非表示、説明なし候補の除外。
+  - Chrome ヘッドレスで 1440px（右サイドバー）と 500px（上部・初期閉）のスクリーンショットを確認。
+  - 当日のおすすめは `svg-generator`（30% 側の「静かな名作」枠）。

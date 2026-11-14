@@ -10,10 +10,12 @@ HTML, and writes the file atomically so a failed run never publishes a
 truncated page.
 """
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+import hashlib
 import html
 import json
 import os
+import random
 import sys
 import time
 import urllib.error
@@ -30,6 +32,9 @@ API_TIMEOUT = 20
 API_RETRIES = 3
 STATUS_TIMEOUT = 15
 STATUS_WORKERS = 10
+
+# 「本日のおすすめ」の日付判定は JST 基準（UTC だと JST 9:00 で日付が変わるため）。
+JST = timezone(timedelta(hours=9))
 
 with open(os.path.join(REPO_ROOT, ".github", "index-config.json")) as f:
     CONFIG = json.load(f)
@@ -186,6 +191,159 @@ def load_private_items():
     return items
 
 
+def with_description(items):
+    """Pick candidates need a description to be presentable."""
+    return [it for it in items if str(it.get("description", "")).strip()]
+
+
+def pick_of_the_day(ok_items, config):
+    """Choose today's pick deterministically from the JST date.
+
+    The result is stable for the same date and candidate set, so every visitor
+    sees the same recommendation and re-running the generator does not reshuffle
+    it. `INDEX_TODAY=YYYY-MM-DD` overrides the date for tests.
+    """
+    cfg = config.get("dailyPick") or {}
+    if not cfg.get("enabled", True):
+        return None
+
+    day = os.environ.get("INDEX_TODAY") or datetime.now(JST).strftime("%Y-%m-%d")
+    salt = str(cfg.get("seedSalt", "index"))
+    seed = int(hashlib.sha256(f"{day}:{salt}".encode("utf-8")).hexdigest(), 16)
+    rng = random.Random(seed)
+
+    by_name = {it["name"]: it for it in ok_items}
+
+    # 手動キュレーションがある場合はその中から日替わりで選ぶ。
+    curated = []
+    for entry in cfg.get("curated") or []:
+        if isinstance(entry, dict):
+            name = str(entry.get("name", "")).strip()
+            note = str(entry.get("note", ""))
+        else:
+            name = str(entry).strip()
+            note = ""
+        item = by_name.get(name)
+        if item is None:
+            print(f"dailyPick: skipping unknown or unavailable repo: {name}", file=sys.stderr)
+            continue
+        curated.append({"item": item, "note": note})
+    if curated:
+        chosen = curated[rng.randrange(len(curated))]
+        return {"item": chosen["item"], "note": chosen["note"], "day": day, "curated": True}
+
+    pool = sorted(with_description(ok_items), key=lambda it: it["name"])
+    if not pool:
+        return None
+
+    try:
+        today = datetime.strptime(day, "%Y-%m-%d")
+    except ValueError:
+        raise RuntimeError(f"Invalid INDEX_TODAY value: {day!r} (expected YYYY-MM-DD)")
+    cutoff = (today - timedelta(days=int(cfg.get("recentDays", 14)))).strftime("%Y-%m-%d")
+    fresh = [it for it in pool if it.get("updated", "") >= cutoff]
+    # 7割は最近更新されたもの、3割は全件から選び、埋もれたリポジトリも拾う。
+    if fresh and rng.random() < 0.7:
+        pool = fresh
+
+    return {"item": rng.choice(pool), "note": "", "day": day, "curated": False}
+
+
+def pick_reason(pick):
+    """Short human-readable reason for the pick, derived from its update date."""
+    if pick.get("note"):
+        return pick["note"]
+    item = pick["item"]
+    day = pick["day"]
+    updated = item.get("updated", "")
+    if updated == day:
+        return "本日 push"
+    try:
+        delta = (datetime.strptime(day, "%Y-%m-%d")
+                 - datetime.strptime(updated, "%Y-%m-%d")).days
+    except ValueError:
+        return "静かな名作"
+    if 0 <= delta <= 7:
+        return "今週の更新"
+    return "静かな名作"
+
+
+def render_pick(pick):
+    if pick is None:
+        return ""
+    item = pick["item"]
+    desc = esc(item.get("description") or "（説明なし）")
+    stamp = "CURATED" if pick["curated"] else "AUTO PICK"
+    return f'''
+        <a class="pick" data-pick="{esc(item["name"])}" href="{esc(item["pages_url"])}" rel="noopener">
+          <span class="pick-head"><span class="pick-stamp">{stamp}</span><time>{esc(pick["day"])}</time></span>
+          <h3>{esc(item["name"])}</h3>
+          <span class="pick-desc">{desc}</span>
+          <span class="pick-foot"><span>{esc(pick_reason(pick))}</span><span>OPEN →</span></span>
+        </a>'''
+
+
+def render_ticker(ok_items, ng_count):
+    entries = [f'{it["name"]} {it["updated"][5:]} 更新' for it in ok_items[:6]]
+    if ng_count:
+        entries.insert(0, f"NG {ng_count}件")
+    if not entries:
+        entries = ["更新情報はありません"]
+    # 2回繰り返して継ぎ目なくループさせる（CSS の translateX(-50%) と対）。
+    run = "".join(f'<span class="tick">{esc(e)}</span>' for e in entries)
+    return f'''
+        <div class="ticker" tabindex="0" aria-label="更新情報ティッカー（フォーカスで一時停止）">
+          <div class="ticker-track">{run}{run}</div>
+        </div>'''
+
+
+def render_sidecar(pick, ok_items, private_count, ng_count, generated_at):
+    ticker = render_ticker(ok_items, ng_count)
+    return f'''
+  <details class="sidecar" open>
+    <summary>
+      <span class="led" aria-hidden="true"></span>
+      <span class="sidecar-title">SIDECAR</span>
+      <span class="sidecar-toggle" aria-hidden="true"></span>
+    </summary>
+    <div class="sidecar-body">
+      <p class="sidecar-note">公開中の Pages を毎日自動巡回しています。更新日は最終 push 日時です。</p>{render_pick(pick)}{ticker}
+      <dl class="sidecar-stats">
+        <div><dt>PUBLIC</dt><dd>{len(ok_items)}</dd></div>
+        <div><dt>PRIVATE</dt><dd>{private_count}</dd></div>
+        <div><dt>NG</dt><dd>{ng_count}</dd></div>
+      </dl>
+      <p class="sidecar-time">生成 {esc(generated_at)}</p>
+    </div>
+  </details>
+  <script>
+  (function () {{
+    var sc = document.querySelector('.sidecar');
+    if (!sc) return;
+    var summary = sc.querySelector('summary');
+    var userToggled = false;
+    if (summary) summary.addEventListener('click', function () {{ userToggled = true; }});
+    try {{
+      var saved = localStorage.getItem('index-sidecar-open');
+      if (saved === null) sc.open = window.matchMedia('(min-width: 1121px)').matches;
+      else sc.open = saved === '1';
+      sc.addEventListener('toggle', function () {{
+        // 画面幅による初期開閉は保存せず、ユーザー操作だけを記憶する。
+        if (!userToggled) return;
+        localStorage.setItem('index-sidecar-open', sc.open ? '1' : '0');
+      }});
+    }} catch (e) {{}}
+  }})();
+  </script>'''
+
+
+def validate_sidecar(html_out, pick):
+    if html_out.count('class="sidecar"') != 1:
+        raise RuntimeError("Generated HTML must contain exactly one sidecar")
+    if pick is not None and f'data-pick="{esc(pick["item"]["name"])}"' not in html_out:
+        raise RuntimeError("Daily pick is missing from generated HTML")
+
+
 def validate_output(html_out, expected_cards):
     """Fail fast instead of publishing an incomplete/empty page."""
     if "{{" in html_out or "}}" in html_out:
@@ -249,6 +407,12 @@ def main():
     broken_cards = "\n".join(render_broken_card(r) for r in broken_items)
     private_cards = "\n".join(render_private_card(r, i) for i, r in enumerate(private_items))
 
+    pick = pick_of_the_day(ok_items, CONFIG)
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    private_broken = sum(1 for it in private_items if it["status"] in (404, -1))
+    ng_count = len(broken_items) + private_broken
+    sidecar = render_sidecar(pick, ok_items, len(private_items), ng_count, generated_at)
+
     html_out = HTML_TEMPLATE
     html_out = html_out.replace("{{COUNT}}", str(len(items)))
     html_out = html_out.replace("{{OK_COUNT}}", str(len(ok_items)))
@@ -257,9 +421,11 @@ def main():
     html_out = html_out.replace("{{CARDS}}", cards)
     html_out = html_out.replace("{{BROKEN_CARDS}}", broken_cards)
     html_out = html_out.replace("{{PRIVATE_CARDS}}", private_cards)
-    html_out = html_out.replace("{{GENERATED_AT}}", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
+    html_out = html_out.replace("{{GENERATED_AT}}", generated_at)
+    html_out = html_out.replace("{{SIDECAR}}", sidecar)
 
     validate_output(html_out, len(ok_items) + len(broken_items) + len(private_items))
+    validate_sidecar(html_out, pick)
 
     out = os.path.join(REPO_ROOT, "docs", "index.html")
     write_atomic(out, html_out)
@@ -353,9 +519,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                font-size: .8rem; font-weight: 900; padding: .15rem .6rem; border: 2px solid #fff;
                transform: rotate(3deg); }
   .card h3 { font-size: 1.5rem; font-weight: 900; margin: .6rem 0 .4rem; word-break: break-all; }
-  .card .desc { font-size: 1.05rem; font-weight: 700; min-height: 3em; flex: 1; }
+  .card .desc { font-size: 1.05rem; font-weight: 700; min-height: 3em; flex: 1;
+                overflow-wrap: anywhere; }
   .card .meta { border-top: 3px dashed #000; padding-top: .8rem; margin-top: .5rem; }
-  .card .repo { font-size: .75rem; font-weight: 900; }
+  .card .repo { font-size: .75rem; font-weight: 900; overflow-wrap: anywhere; }
   .card .date { align-self: flex-end; margin-top: .5rem; font-size: .85rem; font-weight: 900;
                 background: #fff; border: 2px solid #000; padding: .1rem .4rem; }
   .section { margin-top: 3rem; border-top: 4px solid #000; padding-top: 1.5rem; }
@@ -374,9 +541,69 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .broken-tag { background: #ff2d75; }
   footer { margin-top: 3rem; text-align: center; font-size: .9rem; font-weight: 900;
            border-top: 4px solid #000; padding-top: 1rem; }
+
+  /* SIDECAR: ワイド画面では右に追従、狭い画面では上部の折りたたみパネル */
+  .shell { display: grid; grid-template-columns: minmax(0, 1020px) 300px;
+           grid-template-areas: "main side";
+           gap: 2rem; max-width: 1360px; margin: 0 auto; align-items: start; }
+  .wrap { grid-area: main; max-width: 1020px; margin: 0; min-width: 0; }
+  .sidecar { grid-area: side; position: sticky; top: 1.5rem; width: 300px; background: #fff;
+             border: 4px solid #000; box-shadow: 8px 8px 0 #000; }
+  .sidecar > summary { display: flex; align-items: center; gap: .6rem; cursor: pointer;
+                       list-style: none; background: #000; color: #fff; padding: .7rem .9rem;
+                       font-size: .9rem; font-weight: 900; letter-spacing: .12em; }
+  .sidecar > summary::-webkit-details-marker { display: none; }
+  .sidecar > summary:focus-visible { outline: 4px solid #ff2d75; outline-offset: 2px; }
+  .led { width: .7rem; height: .7rem; flex: none; background: #9ef01a; border: 2px solid #fff;
+         animation: led-pulse 2s ease-in-out infinite; }
+  .sidecar-title { flex: 1; }
+  .sidecar-toggle::before { content: "−"; font-size: 1.1rem; }
+  .sidecar:not([open]) .sidecar-toggle::before { content: "+"; }
+  .sidecar-body { padding: 1rem; }
+  .sidecar-note { font-size: .78rem; font-weight: 700; }
+  .pick { display: flex; flex-direction: column; gap: .45rem; margin: 1rem 0;
+          padding: .9rem; border: 3px solid #000; background: #ffe14d; box-shadow: 5px 5px 0 #000;
+          text-decoration: none; color: #000; transition: transform .1s ease, box-shadow .1s ease; }
+  .pick:hover { transform: translate(-3px, -3px); box-shadow: 8px 8px 0 #000; }
+  .pick:active { transform: translate(1px, 3px); box-shadow: 2px 2px 0 #000; }
+  .pick-head { display: flex; justify-content: space-between; align-items: center;
+               gap: .5rem; font-size: .68rem; font-weight: 900; }
+  .pick-stamp { background: #000; color: #fff; padding: .15rem .45rem; }
+  .pick h3 { font-size: 1.25rem; font-weight: 900; line-height: 1.25; word-break: break-all; }
+  .pick-desc { font-size: .85rem; font-weight: 700; overflow-wrap: anywhere; }
+  .pick-foot { display: flex; justify-content: space-between; gap: .5rem;
+               border-top: 3px dashed #000; padding-top: .5rem; font-size: .72rem; font-weight: 900; }
+  .ticker { overflow: hidden; border: 3px solid #000; background: #000; color: #fff;
+            font-size: .78rem; font-weight: 900; }
+  .ticker-track { display: flex; width: max-content; animation: ticker-scroll 26s linear infinite; }
+  .ticker:hover .ticker-track, .ticker:focus .ticker-track,
+  .ticker:focus-within .ticker-track { animation-play-state: paused; }
+  .ticker:focus-visible { outline: 4px solid #ff2d75; outline-offset: 2px; }
+  .tick { padding: .4rem .8rem; border-right: 2px solid #fff; white-space: nowrap; }
+  .sidecar-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-top: 1rem; }
+  .sidecar-stats div { border: 3px solid #000; padding: .5rem .25rem; text-align: center; background: #9ef01a; }
+  .sidecar-stats div:nth-child(2) { background: #e9d5ff; }
+  .sidecar-stats div:nth-child(3) { background: #ffadad; }
+  .sidecar-stats dt { font-size: .62rem; font-weight: 900; letter-spacing: .08em; }
+  .sidecar-stats dd { font-size: 1.25rem; font-weight: 900; line-height: 1.2; }
+  .sidecar-time { margin-top: .8rem; text-align: right; font-size: .68rem; font-weight: 900; }
+  @keyframes led-pulse { 50% { background: #ff2d75; } }
+  @keyframes ticker-scroll { to { transform: translateX(-50%); } }
+  @media (max-width: 1120px) {
+    .shell { display: block; max-width: 1020px; }
+    .wrap { max-width: none; }
+    .sidecar { position: static; width: auto; margin-bottom: 2rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .led { animation: none; }
+    .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
+    .pick { transition: none; }
+  }
 </style>
 </head>
 <body>
+<div class="shell">
+{{SIDECAR}}
 <div class="wrap">
   <header>
     <span class="badge">MY STUFF ON THE WEB</span>
@@ -403,6 +630,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
   </div>
   <footer>Powered by GitHub Actions &amp; GitHub Pages</footer>
+</div>
 </div>
 </body>
 </html>
